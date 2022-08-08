@@ -1,0 +1,53 @@
+---
+title: "Thoughts on CSP"
+description: "Great when you need it, annoyingly restrictive when you don't"
+publishDate: "7 Aug 2022"
+updatedDates: []
+followMe:
+  username: "ryanmr"
+  href: "https://twitter.com/ryanmr"
+layout: ../../layouts/BlogPost.astro
+---
+
+Content Security Policy is great when you need it. For the default brouchure website or the basic webapp, you might not need it though. It might be more trouble than its worth.
+
+## Defaults
+
+Defaults with CSP is a tough challenge. Inherently CSP wants you to opt-into insecurity. Or in otherwords, start secure, and slump your metaphorical security posture as you require.
+
+Among the defaults you will always reach for is [the `unsafe-inline` keyword](https://content-security-policy.com/unsafe-inline/).
+
+
+> That inline script will also be blocked by CSP by default. There are ways to allow it, such as nonce and hash. But the sledge hammer way to allow it would be to add unsafe-inline to your policy. Suppose we added it to our policy:
+
+The sledge hammer!
+
+Either accept the sledge hammer or...
+
+## Tooling
+
+The defaults may be as they are today. They're not wrong, they're justified in preventing XSS attacks.
+
+Instead, let's look at this from another angle. Let's look at the tooling that's builds most of our frontends.
+
+CSP is usually sent over the wire as an http header. Like many good headers though, there's a somewhat uncommon trick for CSP: stuffing it inside an html meta `http-equiv` tag.
+
+```html
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'" />
+```
+
+For strictly frontend-only tooling like CRA, this is the only good way to automate the process of CSP hash handling. Of course, out of the box, CRA cannot handle this at all, so you could [resort to CRACO](https://www.npmjs.com/package/@craco/craco), but please do not. What a mess.
+
+For server side tooling like Next, there's the option of the usual server generated headers again, it leads to the next problem. Something has to generate a hash (presumably based on the inline script content), and then somehow sneak it into the header data.
+
+Good luck if you're streaming any HTML though.
+
+## Other options
+
+I think CSP is a great tool for dangerous high profile sites with user generated content. The tooling we use for these frontends will only get better and more capable from here, but so too will the complexity grow.
+
+If you had JavaScript-less site, you wouldn't have to worry about `script-src` CSP, but surely you're inlining your above-the-fold styles, right? Oh, well CSP will clobber those too!
+
+Unlike `CORS`, CSP is not illusory security, it is really powerful since it stops everything and lets you handle what you let back in.
+
+It's not the HTML you grew up with, that's for sure.

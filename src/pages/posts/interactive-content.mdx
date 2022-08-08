@@ -1,0 +1,53 @@
+---
+title: "Astro as a blog?"
+description: "Yet another frontend scheme"
+publishDate: "28 July 2022"
+updatedDates: ["30 July 2022", "1 August 2022"]
+followMe:
+  username: "ryanmr"
+  href: "https://twitter.com/ryanmr"
+---
+
+import BlogPost from "../../layouts/BlogPost.astro";
+import FollowMe from "../../components/FollowMe.astro";
+
+<BlogPost {...frontmatter}>
+Hello, welcome to this post: {frontmatter.title}
+
+This is a post that represents some varied content.
+
+<pre>{JSON.stringify(frontmatter, null, 2)}</pre>
+
+```json
+{"hey": "hello"}
+```
+
+## Island component
+
+<FollowMe username={frontmatter.followMe.username} href={frontmatter.followMe.href} client:visible />
+
+## Regular text with a link
+
+You should follow me <a href="https://twitter.com/ryanmr">on twitter</a>.
+
+## Blockquote and paragraph
+
+> Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+## List
+
+* step 1
+* step 2
+* step 3
+
+1. apple
+2. banana
+3. carrot
+
+
+</BlogPost>
+
