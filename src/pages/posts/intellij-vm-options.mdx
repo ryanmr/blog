@@ -1,0 +1,23 @@
+---
+title: "intellij - idea.vmoptions"
+description: "Don't edit things you don't understand, or, do exactly that but fix them after"
+publishDate: "11 August 2022"
+---
+
+import BlogPost from "../../layouts/BlogPost.astro";
+
+<BlogPost {...frontmatter}>
+
+I was trying to use Spotless with Java 17. For some reason I thought it would be a good idea to use `idea.vmoptions` to tinker with settings I hardly understand.
+
+If you bork you Intellij installation by misformatting the file, it's fine, you can edit manually.
+
+On macOS:
+
+```
+cd /Users/ryanrampersad/Library/Application Support/JetBrains/
+```
+
+Your config folder's name will depend on the version of Intellij (or any of the other IDEs based on it), so go into that and then `vim` or otherwise edit the `idea.vmoptions` as you need.
+
+</BlogPost>
