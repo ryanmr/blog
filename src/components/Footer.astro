@@ -5,8 +5,18 @@ const currentYear = new Date().getFullYear();
 <footer class="pt-16 pb-8">
   <div class="container mx-auto px-4 sm:px-2">
     <p class="text-xs text-right">
-      &copy; 2022-{currentYear}
+      &copy; 2022-<span data-current-year>{currentYear}</span>
       <a href="/" class="hover:underline">Ryan Rampersad</a>
     </p>
   </div>
 </footer>
+
+<script>
+  (() => {
+    const currentYear = new Date().getFullYear();
+    const target = document.querySelector("[data-current-year]");
+    window.addEventListener("load", () => {
+      target.innerHTML = `${currentYear}`;
+    });
+  })();
+</script>
