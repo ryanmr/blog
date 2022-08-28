@@ -12,11 +12,5 @@ const currentYear = new Date().getFullYear();
 </footer>
 
 <script>
-  (() => {
-    const currentYear = new Date().getFullYear();
-    const target = document.querySelector("[data-current-year]");
-    window.addEventListener("load", () => {
-      target.innerHTML = `${currentYear}`;
-    });
-  })();
+  import '../scripts/footer.js';
 </script>

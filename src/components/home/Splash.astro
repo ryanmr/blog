@@ -1,0 +1,58 @@
+---
+// export interface Props {
+//     name: string;
+//     href: string;
+// }
+
+import Ribbon from "./Ribbon.astro"
+
+// const { name, href } = Astro.props;
+---
+
+<section class="relative h-full">
+    <Ribbon />
+    <div class="relative grid h-full sm:grid-cols-1 place-items-center z-20">
+        <div class="flex flex-col gap-2 sm:gap-4 sm:self-auto sm:justify-self-center">
+            <h1 class="font-brand uppercase text-center text-8xl">
+                Ryan Rampersad
+            </h1>
+            <ul class="text-center">
+                <li>software engineer</li>
+                <li>web developer</li>
+                <li>consultant</li>
+                <li>podcaster</li>
+                <li>technology enthusiast</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<style>
+    @keyframes float {
+        0% {
+            transform: translate3d(0, 0, 0);
+        }
+
+        100% {
+            transform: translate3d(0, 30px, 0);
+        }
+    }
+
+    picture {
+        animation: float linear 2.5s infinite alternate;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        picture {
+            @apply animate-none;
+        }
+
+        :global(#starfield) {
+            @apply hidden;
+        }
+
+        #splash-bg-fallback {
+            @apply block;
+        }
+    }
+</style>
