@@ -1,0 +1,103 @@
+---
+title: "JavaScript Webtech"
+description: "The Good, Bad and the Maybe"
+publishDate: "2 Sep 2022"
+layout: "../../layouts/BlogPost.astro"
+---
+
+Webtech is always changing. The times of software sitting on relatievly the same stack for ten years are gone. You'll be lucky if the frontend you write today lasts without major user interface churn for two years, and incredibly fortunate if the ui framework doesn't lose developer popularity or crawl to a slog in five years. The backend ecosystem might be a little bit more stable, but alas there's no _Rails_ in the JavaScript ecosystem.
+
+### TypeScript 
+
+If you can start a new project today with TypeScript, using TypeScript is easier. Migrating a legacy codebase might be a challenge, the initial warmup time learning TypeScript might feel steep, but that's OK. You don't need to use recursive types, you don't need crazy interfaces. Just have it setup. Use types where they feel like inline documentation. Object shapes, arguments, and maybe that's enough to get started.
+
+If the tooling can support TypeScript, turn it on.
+
+With TypeScript, you should turn on `strict`. It will cover so many edge cases for truthy, null and undefined checks. You will save time with this on, becuase you will avoid rewriting dozens of files.
+
+### Modern Bundlers
+
+Babel and Webpack, they're our good friends. But they're slow now.
+
+`swc` and `esbuild` are the fast bundlers out there today. It's not unlikely another non-js bundler and language modifier will come along, or one of these will fall out of favor. Small webpack builds might be quick enough, but as your apps grow, your developer experience will take a hit. These two can save you from the slow.
+
+`swc` and `esbuild` are lower level than you're likely working on - configuring them directly is fine, and actually easier than Webpack, but you might not have to.
+
+### Modern React "Frameworks" for "Apps"
+
+The React ecosystem largest frontend "framework" developer ecosystem for "apps".
+
+#### Single Page Application (SPA)
+
+There's a lot of debate about single page apps right now. There are all sorts of reasons why an SPA might have poor performance, directly impacting user expereince. Slow connections, high latencies, huge bundles, slow first paints, the list goes on.
+
+For the most part, for commodity back-of-house apps, like adminitistative portals, internal dashboards, and _apps_ are fine.
+
+_And apps_!? Yes, if you're making the next Gmail class app, fine, go ahead, make it an SPA. It will probably be fine.
+
+When not to make it an SPA:
+
+* When you need your site and pages on Search Engine Result Pages (SERPs)
+    * You'll never get an SPA properly decorated in on the SERPs and properly ranked; not enough content, not enough control, no matter what they tell you about Googlebot crawling SPAs
+    * If you're thinking about e-commerce at all, you can't use an SPA.
+* When the majority of your pages are full of static content
+    * The two other scenarios cover this; server side rendering / hybrid apps, and static site generation
+* When you can't make portions of your frontend code effectively public
+    * This almost never happens; put special secret sauce business logic behind APIs where they belong and your treasure will stay software
+
+#### Vite
+
+Vite is your best bet for the future. It's fast because it uses `esbuild`, it's community is thriving, its configuration out of the box is great, it supports TypeScript.
+
+[`create-react-app` is dead](https://twitter.com/dan_abramov/status/1565509314978119680).
+
+I haven't ported an application from CRA to Vite yet, but aside from TypeScript and some other high level configuration, I can't think of anything in the actual application code that could break for any standard product.
+
+Unless, maybe, you did think the unthinkable and ejected already?
+
+#### Server Side Rendered / Hybrid Apps
+
+Get your pages listed on SERPs! Get indexed today!
+
+Rolling your own [SSR with React today is not easy](https://www.bestbuy.com/?react). Sure, you can do it, but it will be so customized, unrepeatable and unknowable.
+
+Next and Remix are the options here today.
+
+Next has been around for a while. It has some quirks, most of them obligations of its hybrid nature. Routing is based on the filesystem route. Components are not colocated with their pages. There are weird magical functions that just _run_ if they're defined. Despite all of that, it's fine. If you need some prerendered pages, some server side rendered pages (on demand) and some SPA-like functionality, then Next is great.
+
+Remix is on my watch list. It's still new, the community young, and I think that because approach is so drastically different than what the SPA-era has coached everyone into, you will spend extra time getting used to Remix.
+
+#### Static Site Generated (Apps)
+
+Brochure-ware at its finest.
+
+If you have markdown, or some realtively narrow set of pages with data sourced from an API, static site generation works. This can break down when you need interactive editing (for that go back to Next), or when you have so many pages rebuilding them is wasteful.
+
+* 🔴 Not recommended: Gatsby: it feels a lot like JavaScript flavored WordPress
+    * the GraphQL model is too much work
+    * the mix of esm and cjs files is weird
+    * the deployment tech is optimized only for their first party deployment service
+* 🟢 Tentatively Recommended: Astro: it works with everything, even React!
+    * seriously, incredible work was done to ensure interop between React, Vue and others
+    * uses `vite` under its hood, which in turn uses `esbuild` under its hood; new tools all the way down
+    * successor development team to snowpack; well, hopefully it does better than that
+    * island architecture is awesome; only load if it's in the viewport and only this small chunk is impacted
+    * you can even use plain js, with the bundler, and modern tooling, and packages... _no framework at all_
+
+#### State Management
+
+[Redux](https://redux.js.org/) is a lot. [Sagas are too much](https://redux-saga.js.org/). [Redux Toolkit makes it better](https://redux-toolkit.js.org/), but it is still a lot.
+
+Maybe you don't need a service bus on the frontend.
+
+Consider:
+
+1. Tree-Local-State, use Context
+    * Context often has performance issues; you put a context at the top of your entire app, you shove stuff in like Redux and your app gets slower and slower because your entire tree rerenders
+    * Context is _fine_ if you use it as a read/write 80/20 store; auth states _might_ be fine in a Context as long as you read and you don't write ever again
+2. `react-query` is usually more than enough for fetching server fetched state, providing for great developer experience and user experience opportunities
+3. `zustand` is a great option for more complex state, SPA-style cross page data propagation use cases
+    * you can combine this with `immer`
+    * you might should reach for this if you can justify the bundle size
+
+Do you need truly global state? Probably not.
