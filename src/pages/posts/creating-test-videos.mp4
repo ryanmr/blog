@@ -1,0 +1,33 @@
+---
+title: "Creating test videos"
+description: "No time record, I just need a 499MB test video!"
+publishDate: "9 Nov 2022"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+While working on a file uploading service, we had special considerations for video. Our underlying infrastructure is a mix of homebrewed k8s-cluster magic and AWS-flavored S3 buckets. We had some rules for uploaded videos, they must be less than 500MB, they must be mp4 and so on.
+
+I needed videos to test with of various sizes, specifically sizes I could control and then later distribute.
+
+## Step 1
+
+You need an initial video.
+
+These [Big Buck Bunny videos are great for this purpose](https://test-videos.co.uk/bigbuckbunny/mp4-h264). They're publically available and they're a well known testing video. I suppose you could make your own branded logo swooshing video too, but that's a lot more work.
+
+
+What's also great about the Big Buck Bunny videos is the site provides a variety of base filesizes. You can use the 1MB just as well as the 30MB files. Your math will change a bit though.
+
+## Step 2
+
+
+You need ffmpeg. If you don't have that, grab it via `brew install ffmpeg` and prepare for a nap while that installs.
+
+This is the command template I use to repeat a video on a loop X-times. This isn't a soft-loop, this is a real segment repeated X-times. It balloons your filesize like there is no tomorrow. Use it with care.
+
+```
+ffmpeg -stream_loop X -i ./input.mp4 -c copy output.mp4
+```
+
+Using the 1MB file is great of course, it makes the math easier. If you need a 500MB video file, you can generate it `500` in place of `X`.
