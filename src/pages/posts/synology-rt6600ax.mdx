@@ -1,0 +1,39 @@
+---
+title: "Synology RT6600ax"
+description: "It's not a NAS, it's a router, silly"
+publishDate: "9 Nov 2022"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+I'm coming from a [Netgear Nighthawk R8000](https://www.netgear.com/home/wifi/routers/r8000/). When I was ready for an upgrade, I knew I wanted a router that was much more reliable and one that delivered better generally accessible speeds. My house and yard aren't the large, and I don't have practical aspirations of having my signal reach out beyond that.
+
+Eventually, I found out that Synology was coming out with a new router for Wifi 6 (that's the AX in its name). Synology has a good reputation for NAS devices, and when I looked into the early reviews in 2022, it seemed really promising. Alternives were bulking monstrosities or fantastic though unavailable due to supply chain woes Ubquitity products. I wanted something a little more prosumer, but a little less prosumer than Ubquitity.
+
+> For what it's worth, if Ubquitity had Dream Machine units with Wifi in stock, I might have been completely satisified with that and gone for it. Maybe for Wifi 7?
+
+You can read all about [the Synology RT6600x](https://www.google.com/search?q=synology+rt6600ax) and its specs and watch other reviews. Consider this a living document. In general, the `TL;DR` is that I like the Synology RT6600ax.
+
+### Initial impressions
+
+The hardware is plain, not too much to its design.
+
+The user interface is a computer desktop graphical user interfcace. Overall it's nice, and the search tool works well to jump you into a specific setting or section easily. 
+
+### Disabling Smart Connect
+
+Smart Connect is a "feature" that is supposed to combine all of your SSID into a single broadcasting SSID. That sounds nice in theory. Whenever you look in the neightborhood you find "Bob's Wifi" and "Bob's Wifi 5G". Smart Connect would merge them back together, meanwhile preserving the ability for 2.4GHZ and 5GHZ devices to connect to their optimal band and channel.
+
+Smart Connect on this router was _absolutely awful_. It was on by default, so I gave it a try. Some devices would connect and show absymal performance even on the local network. Range was impacted too, where some devices that were connecting with decent speeds well out into the yard, could barely maintain a few dozen mbps.
+
+Turning off Smart Connect and splitting the SSID back into three distict broadcasting SSIDs fixed the issue entirely.
+
+### Setting customized DHCP
+
+I set customized fixed DHCP (DNS for your LAN) for my local Linux server. Some router settings make this hard or confusing. With this router, it's easy to make a permenant reservation for a specific MAC address.
+
+### Setting up CenturyLink Fiber
+
+Unfortunately, I couldn't figure out how to get CenturyLink Fiber (Saint Paul, MN) working with the router directly. That means I run everything through a Double NAT. There's some performance implications running through a Double NAT in theory, but I don't think I am hitting them. When I run a speed test on an Ethernet routed machine, I can get a stable 940mbps down. I expect that is within in the natural networking overhead range.
+
+I've heard of other tricks, copying and assuming the MAC address of the ISP router &mdash; it is not a modem, it really is a router. As much as I would enjoy this beautiful and pristine networking environment, I haven't spent the time to debug this further.
