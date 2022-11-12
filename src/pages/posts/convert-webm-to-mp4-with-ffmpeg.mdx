@@ -1,0 +1,21 @@
+---
+title: "Convert WebM video to MP4 video with ffmpeg"
+description: "WebM has limited support"
+publishDate: "9 Nov 2022"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+If you need to convert a WebM video file into a usable video format, `ffmpeg` can take care of that for you.
+
+```
+ffmpeg -i input.webm output.mp4
+```
+
+If your file does not convert well, try this command:
+
+```
+ffmpeg -i input.webm -fflags +genpts -r 25 -movflags faststart -preset veryfast output.mp4
+```
+
+I needed these additional flags `-fflags +genpts -r 25` when I needed to convert a WebM from Ubuntu's built in screen recorder. Before using these flags, the video played the first frame for the entire video duration. After, it played as expected.
