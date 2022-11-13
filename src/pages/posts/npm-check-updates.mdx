@@ -1,0 +1,43 @@
+---
+title: "npm-check-updates"
+description: "ncu is wonderful, try it"
+publishDate: "13 Nov 2022"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+```
+➜  blog git:(main) ✗ ncu --format group
+Using yarn
+Checking /home/ryan/Code/blog/package.json
+[====================] 12/12 100%
+
+Patch   Backwards-compatible bug fixes
+ @types/react      ^18.0.17  →  ^18.0.25
+ @types/react-dom   ^18.0.6  →   ^18.0.8
+ classnames          ^2.3.1  →    ^2.3.2
+
+Minor   Backwards-compatible features
+ @astrojs/react  ^1.1.0  →  ^1.2.2
+ astro            1.1.1  →   1.6.7
+
+Major   Potentially breaking API changes
+ @astrojs/tailwind  ^1.0.0  →  ^2.1.2
+
+Major version zero   Anything may change
+ @astrojs/mdx             0.10.2  →  0.11.6
+ @tailwindcss/typography  ^0.5.4  →  ^0.5.8
+ prettier-plugin-astro    ^0.5.3  →  ^0.7.0
+
+Run ncu --format group -u to upgrade package.js
+```
+
+I love using `ncu --format group` to check one what package needs updates. I know many folks love using the built in upgrade interactive, but it's just a little too much for me for an at-a-glance look. What if you do the unthinkable and use yarn@3? This is a good option.
+
+Grab `ncu` from `npm i -g npm-check-updates`.
+
+
+
+
+
+

@@ -1,0 +1,28 @@
+---
+title: "Install Node"
+description: "NVM is OK but maybe Volta is better"
+publishDate: "13 Nov 2022"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+While setting up my new personal server, I needed `node` in order to run various scripts including Vercel.
+
+Usually I reach for [nvm](https://github.com/nvm-sh/nvm) or node version manager. `nvm` has been great for many years. On my Macs, I usually install `nvm` using `brew` even though it is discouraged and `nvm` offers no support for brew based installs. I also notice that oepning new iTerm 2 terminal windows has a long startup time, anywhere from 3 to 10 seconds. Recent reading reveals that slowdown could come from loading completions for various CLIs. One of those CLIs could be `nvm`.
+
+[Volta is a rust based node version manager tool](https://volta.sh/) that does just what `nvm` does, but since it's rust based, it's fast.
+
+As far as I know, there's no brew install option, but that's fine.
+
+---
+
+One unusual quirk is that by default, if you use `yarn`, and it's not installed some other way, Volta will offer installation. If you take it at face value, you might expect yarn@1 or `yarn`. Instead, surprisingly, Volta will install yarn berry or yarn@3. I am not sure if a yarn berry global installation can even handle yarn@1 repositories. Further ramifications are you can't install globals with yarn@3 either. This quirk concludes with a quirk too: you can't uninstall yarn@3 with Volta right now.
+
+
+
+
+
+
+
+
+
