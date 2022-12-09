@@ -1,0 +1,58 @@
+---
+title: "Using jest with swc and esm"
+description: "Do any of these tools work together? The answer may surprise you"
+publishDate: "9 Dec 2022"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+I build APIs, scripts and other node flavored tooling using [my favorite transpiler, swc](https://swc.rs/). Ever since [the esm kerfuffle](https://github.com/swc-project/swc/issues/5205) of July 2022, I have been trying to waiting on jest's implementation of viable esm testing support. It's awfully hard to test without mocks, sometimes.
+
+Anyway, on a cold Friday afternoon, I tried converting a small project (around 20 or so files) from a CommonJS target compilation to an ESM target compilation. The code was already in TypeScript format, so internally it used `import` and `export` just fine, but it desugared that into the CommonJS `require` syntax instead.
+
+Getting the codebase over to ESM wasn't trivial, but it wasn't too bad.
+
+1. Using a search and replace `import\s+(.*)"(\..*)";` / `import $1 "$2.js";` regex, I renamed most imports from their extensionless variant to their `esm` variant ending in `.js`
+2. I added `"type": "module",` to the `package.json` to enable esm modules at the node level
+3. I updated the `.swcrc` file's `module.type` property from `CommonJS` to `es6` (this nomenclature makes a lot... wait, no sense)
+4. I updated the `tsconfig.json`, specifically the `module` property from `CommonJS` to `NodeNext` (what's consistency, again?)
+
+I had to make various edits to imports that my global search and replace didn't find (I did not account for multiline imports, ooops). If there was a working codemon for this purpose, I'd use it.
+
+Next up, testing.
+
+Jest requires some additional steps for ESM compatible testing, like adding `NODE_OPTIONS=--experimental-vm-module` to your environment, or at least prefixing your test commands with that. Experimental VM support is available in Node 16 at least, but there's probably better support on more recent versions too.
+
+Even with the flag, I received an error:
+
+> ReferenceError: module is not defined in ES module scope
+> This file is being treated as an ES module because it has a '.js' file extension and '/Users/ryan/Code/tooling/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+
+Since this package runs in ESM mode now, I have to rename the `jest.config.js` to `jest.config.cjs` for `CommonJS`.
+
+After that, more errors:
+
+> Cannot find module '../system/system.js' from 'src/system/system.ts'
+
+This happened in every test file that was importing a unit.
+
+`swc` compiles your TypeScript code into JavaScript ESM flavored code. I thought it would do this on the fly in memory, without writing out to the `./dist` folder like it does during a normal build, just for this special purpose of testing, and then pass that in memory representation right over to jest. I guess that doesn't quite work out either.
+
+I read about the `extensionsToTreatAsEsm` in the jest docs, but that wasn't enough. Luckily I found this thread for [`@swc/jest` "ES import of typescript with .js extension fails"](https://github.com/swc-project/jest/issues/64#issuecomment-1029753225). I found this by reading through the repositories issue list. I never saw this come in a search result, unfortunately.
+
+```js
+module.exports = {
+  transform: {
+    "^.+\\.(t|j)sx?$": "@swc/jest",
+  },
+  moduleNameMapper: {
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+  },
+  extensionsToTreatAsEsm: [".ts", ".tsx"],
+  collectCoverageFrom: ["./src/**"],
+  coveragePathIgnorePatterns: [".*__snapshots__/.*"],
+  testPathIgnorePatterns: ["node_modules", "dist"],
+};
+```
+
+Now my pure unit tests can function properly. It's anyone's guess if mocking will ever work though.
