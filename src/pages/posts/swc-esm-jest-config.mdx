@@ -1,23 +1,25 @@
 ---
-title: "Using jest with swc and esm"
+title: "Using swc and esm with jest"
 description: "Do any of these tools work together? The answer may surprise you"
 publishDate: "9 Dec 2022"
 updatedDates: []
 layout: ../../layouts/BlogPost.astro
 ---
 
-I build APIs, scripts and other node flavored tooling using [my favorite transpiler, swc](https://swc.rs/). Ever since [the esm kerfuffle](https://github.com/swc-project/swc/issues/5205) of July 2022, I have been trying to waiting on jest's implementation of viable esm testing support. It's awfully hard to test without mocks, sometimes.
+I build APIs, scripts and other node flavored tooling using [my favorite transpiler, swc](https://swc.rs/). Ever since [the esm kerfuffle](https://github.com/swc-project/swc/issues/5205) of July 2022, I have been waiting on jest's implementation of viable esm testing support. Testing is awfully hard without mocks. Who knew.
 
-Anyway, on a cold Friday afternoon, I tried converting a small project (around 20 or so files) from a CommonJS target compilation to an ESM target compilation. The code was already in TypeScript format, so internally it used `import` and `export` just fine, but it desugared that into the CommonJS `require` syntax instead.
+Anyway, on a cold Friday afternoon, I tried converting a small project (around 20 files or so) from a CommonJS target compilation to an ESM target compilation. The code was already in TypeScript format. Internally it used `import` and `export`, but it desugared that into the CommonJS `require` syntax instead. Outside of that, ESM compliance was just extension tweaks and ensuring the compilation output was matching.
 
-Getting the codebase over to ESM wasn't trivial, but it wasn't too bad.
+Getting the codebase over to ESM wasn't trivial, but it wasn't too bad either. Here are steps I used:
 
-1. Using a search and replace `import\s+(.*)"(\..*)";` / `import $1 "$2.js";` regex, I renamed most imports from their extensionless variant to their `esm` variant ending in `.js`
+1. Using a search `import\s+(.*)"(\..*)";` and replace `import $1 "$2.js";` regex; I renamed most imports from their extensionless variant to their `esm` variant ending in `.js` (usually this step seems the most unbearable, especially for projects with many more files)
 2. I added `"type": "module",` to the `package.json` to enable esm modules at the node level
 3. I updated the `.swcrc` file's `module.type` property from `CommonJS` to `es6` (this nomenclature makes a lot... wait, no sense)
 4. I updated the `tsconfig.json`, specifically the `module` property from `CommonJS` to `NodeNext` (what's consistency, again?)
 
 I had to make various edits to imports that my global search and replace didn't find (I did not account for multiline imports, ooops). If there was a working codemod for this purpose, I'd use it.
+
+## Jest
 
 Next up, testing.
 
@@ -45,10 +47,10 @@ module.exports = {
   transform: {
     "^.+\\.(t|j)sx?$": "@swc/jest",
   },
-  moduleNameMapper: {
+  moduleNameMapper: {                      // <--- this one
     "^(\\.{1,2}/.*)\\.js$": "$1",
   },
-  extensionsToTreatAsEsm: [".ts", ".tsx"],
+  extensionsToTreatAsEsm: [".ts", ".tsx"], // <--- this one
   collectCoverageFrom: ["./src/**"],
   coveragePathIgnorePatterns: [".*__snapshots__/.*"],
   testPathIgnorePatterns: ["node_modules", "dist"],
