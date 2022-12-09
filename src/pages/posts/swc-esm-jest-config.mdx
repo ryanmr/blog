@@ -17,11 +17,11 @@ Getting the codebase over to ESM wasn't trivial, but it wasn't too bad.
 3. I updated the `.swcrc` file's `module.type` property from `CommonJS` to `es6` (this nomenclature makes a lot... wait, no sense)
 4. I updated the `tsconfig.json`, specifically the `module` property from `CommonJS` to `NodeNext` (what's consistency, again?)
 
-I had to make various edits to imports that my global search and replace didn't find (I did not account for multiline imports, ooops). If there was a working codemon for this purpose, I'd use it.
+I had to make various edits to imports that my global search and replace didn't find (I did not account for multiline imports, ooops). If there was a working codemod for this purpose, I'd use it.
 
 Next up, testing.
 
-Jest requires some additional steps for ESM compatible testing, like adding `NODE_OPTIONS=--experimental-vm-module` to your environment, or at least prefixing your test commands with that. Experimental VM support is available in Node 16 at least, but there's probably better support on more recent versions too.
+Jest [requires additional steps for ESM compatible testing](https://jestjs.io/docs/ecmascript-modules), like adding `NODE_OPTIONS=--experimental-vm-module` to your environment, or at least prefixing your test commands with that. Experimental VM support is available in Node 16 at least, but there's probably better support on more recent versions too.
 
 Even with the flag, I received an error:
 
