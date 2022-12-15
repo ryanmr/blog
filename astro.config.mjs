@@ -10,5 +10,5 @@ export default defineConfig({
     react(),
     tailwind({ config: { applyBaseStyles: false } }),
   ],
-  site: `http://astro.build`,
+  site: `http://www.ryanmr.com`,
 });
