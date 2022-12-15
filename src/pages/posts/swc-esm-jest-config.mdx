@@ -57,4 +57,80 @@ module.exports = {
 };
 ```
 
-Now my pure unit tests can function properly. It's anyone's guess if mocking will ever work though.
+Pure unit tests, as they worked before, will continue working from this point on.
+
+Pure tests are wonderful, but they can only get you so far. Sometimes complexity is layered, and unless you decide to inject everything, you'll want to _mock_ the internals of a unit under test so that there aren't unintended side effects.
+
+This is where this `swc` and `jest` testing story gets scary.
+
+Here's an example:
+
+```ts
+export function writeFile(content: string) {
+    fs.writeFileSync("./data.json", content, {encoding: "utf8"});
+}
+
+export function saveData(a: string, b: number) {
+    const data = {name: a, age: b};
+    writeFile(JSON.stringify(data));
+}
+```
+
+Some basic shim for writing to the filesystem, and some business logic taking input, formatting it, and saving it using the shim.
+
+With `swc` and the esm configuration, you'll end up generating something like this:
+
+```js
+export function writeFile(content) {
+    fs.writeFileSync("./data.json", content, {
+        encoding: "utf8"
+    });
+}
+export function saveData(a, b) {
+    const data = {
+        name: a,
+        age: b
+    };
+    writeFile(JSON.stringify(data));
+}
+```
+
+This is great, except, with _ESM_ code, you can't rely on jest's historical mocking abilities anymore. [Eventually loaders](https://github.com/nodejs/loaders) might make this work out better.
+
+So you're wondering now, what's the point of all this? ESM is cool but presents such a hurdle to testing that you might be better off without it. Still, you say, as I said, that you really want to use `swc` for its quick TypeScript conversion capabilities.
+
+What if you could stick to the modern _ESM_ code, but have it compile down to CommonJS syntax? Here's what you get, from that same example above:
+
+```js
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: all[name]
+    });
+}
+_export(exports, {
+    writeFile: ()=>writeFile,
+    saveData: ()=>saveData
+});
+function writeFile(content) {
+    fs.writeFileSync("./data.json", content, {
+        encoding: "utf8"
+    });
+}
+function saveData(a, b) {
+    const data = {
+        name: a,
+        age: b
+    };
+    writeFile(JSON.stringify(data));
+}
+
+```
+
+This looks fine at first glance, but the secret is in that `_export` function that `swc` adds as a helper. In particular, it prevents the function from being patched externally, or in other words, from being mocked. `swc` emulates the _frozen_ nature of _ESM_ code, in CommonJS. It's an accomplishment, for sure, but it's rough because it means you might be stuck with code that's using `swc` and stuck without a way for useful tests.
+
+I have no idea what to think about the ESM ecosystem and no idea what to think about `swc`. Although, since [the esm kerfuffle](https://github.com/swc-project/swc/issues/5205) as previousy mentioned, there has been a wonky userland fix for this rather than an integrated option. I don't see enough complaints, which could mean either nobody tests anything, nobody uses this `swc` or I am the odd one out.
