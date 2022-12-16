@@ -2,12 +2,20 @@
 const currentYear = new Date().getFullYear();
 ---
 
-<footer class="pt-16 pb-8">
-  <div class="container mx-auto px-4 sm:px-2">
-    <p class="text-xs text-right">
-      &copy; 2022-<span data-current-year>{currentYear}</span>
-      <a href="/" class="hover:underline">Ryan Rampersad</a>
-    </p>
+<footer class="pt-32 pb-32">
+  <div class="container mx-auto px-4 sm:px-2 space-y-4">
+    <div class="text-xs text-right flex gap-4 justify-center">
+      <p><a href="/">Home</a></p>
+      <p><a href="/rss.xml">RSS</a></p>
+    </div>
+    <div class="text-center text-xs">
+      <p>
+        &copy; 2022-<span data-current-year>{currentYear}</span>
+        <a href="https://ryanrampersad.com" class="hover:underline"
+          >Ryan Rampersad</a
+        >
+      </p>
+    </div>
   </div>
 </footer>
 
