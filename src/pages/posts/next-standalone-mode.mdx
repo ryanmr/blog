@@ -1,0 +1,61 @@
+---
+title: "NextJS with Standalone Mode"
+description: "Docker image optimization at its finest"
+publishDate: "20 Dec 2022"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+We run our Next webapps on a kubernetes cluster. There's a whole lot of infrastructure for some webapps these days. You know how it goes.
+
+Since we run on a kubernetes cluster, we package our next webapps into docker images. Doing this the _naive_ way uses the following steps:
+
+1. install all dependencies (dependencies + dev dependencies)
+2. `yarn build` to build the `.next` folder
+3. delete the `node_modules`
+4. install only dependencies (no dev dependencies)
+5. copy `.next`, `node_modules` and other meta files `package.json`, `yarn.lock`
+
+At the end of all this, you might end up with a 500MB+ sized docker image. Being a frontend and a backend, you have more dependencies compared to an SPA (usually, sometimes). Meanwhile, there are tons of support files bundled togther in the image. Things that aren't necessary for the Next webapp to run either.
+
+That's where the new _Output File Tracing_ comes in. Specifically, Standalone Mode. This is an amazing optimization.
+
+Set your `next.config.js`:
+
+```js
+module.exports = {
+    // ...
+    output: 'standalone',
+}
+```
+
+Then update your `Dockerfile` to use the new standalone structure. These details are mentioned, but I thought they were unclear without an example `Dockerfile`:
+
+>This will create a folder at .next/standalone which can then be deployed on its own without installing node_modules.
+>
+>Additionally, a minimal server.js file is also output which can be used instead of next start. This minimal server does not copy the public or .next/static folders by default as these should ideally be handled by a CDN instead, although these folders can be copied to the standalone/public and standalone/.next/static folders manually, after which server.js file will serve these automatically.
+>
+>Note: next.config.js is read during next build and serialized into the server.js output file. If the legacy serverRuntimeConfig or publicRuntimeConfig options are being used, the values will be specific to values at build time.
+
+Here's my updated `Dockerfile`
+
+```dockerfile
+FROM node:16-alpine
+
+WORKDIR /app
+
+ENV NODE_ENV="production"
+
+# ---
+
+COPY ./public ./public
+
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY ./.next/standalone ./
+COPY ./.next/static ./.next/static
+
+CMD [ "node", "./server.js" ]
+```
+
+The docker image size reduction is huge. Going from 500MB+ to a much smaller 100MB.
