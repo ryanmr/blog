@@ -1,0 +1,67 @@
+---
+title: "Zod Optional Default"
+description: "z.infer vs z.input; the secret is in the types"
+publishDate: "19 Dec 2022"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+[Zod is great](https://github.com/colinhacks/zod). Concise and simple and TypeScript oriented.
+
+I recently ran into a scenario with an object with an optional property with a default. Thinking this schema would just work, I wrote up the schema and the tests and then suddenly it all fell a part.
+
+For example, suppose you have a User with a `name` and a `role`. Then, `name` is required while `role` will default to `guest` if nothing else is supplied.
+
+Here's an zod schema:
+
+```ts
+const UserSchema = z.object({
+  name: z.string(),
+  role: z.string().default("guest"),
+});
+```
+
+Here's a small test, that fails:
+
+```ts
+const testUser: z.infer<typeof UserSchema> = {
+  name: "name",
+};
+// Error
+// Property 'role' is missing in type '{ name: string; }' but required in type '{ name: string; role: string; }'.
+```
+
+In theory, with `.default` having been set on `role`, not providing `role` in the object should be OK. And yet we have an error here.
+
+I thought this error was because `.optional` was not defined in the schema:
+
+```diff
+const UserSchema = z.object({
+  name: z.string(),
+- role: z.string().default("guest"),
++ role: z.string().default("guest").optional(),
+});
+```
+
+This _seemed_ to make progress, getting rid of the type error, however the output was wrong:
+
+```json
+{"name":"name"}
+```
+
+Actually, I used the wrong input type. In fact, I did _not use_ the input type, I used the _output type_. There's [a few hints in the docs](https://github.com/colinhacks/zod#type-inference:~:text=What%20about%20transforms%3F), but it wasn't very obvious to me either. The original schema was fine, but the _test_ was wrong. Here's how it should look:
+
+```diff
+- const testUser: z.infer<typeof UserSchema> = {
++ const testUser: z.input<typeof UserSchema> = {
+  name: "name",
+};
+```
+
+With `z.input`, you may safely omit the `role` property from the object.
+
+Finally, the resulting shape is what we wanted all along:
+
+```json
+{"name":"name","role":"guest"}
+```
