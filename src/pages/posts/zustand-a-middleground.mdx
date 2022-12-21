@@ -6,19 +6,19 @@ updatedDates: []
 layout: ../../layouts/BlogPost.astro
 ---
 
-[Zustand](https://github.com/pmndrs/zustand) is one of those _new_ state management libraries. Invented well after the rise and pleatu of redux, invented well after the easification of [Context](https://reactjs.org/docs/context.html), invented in a time where there new ideas coming along all the time.
+[Zustand](https://github.com/pmndrs/zustand) is one of those _new_ state management libraries. Invented well after the rise and pleatu of redux, invented well after the easification of [Context](https://reactjs.org/docs/context.html), invented in a time where there not enough good options.
 
-Tree local state is what I used to think Context. While it _could_ be for tree local state, it has poor performance characteristics and a developer experience problem.
+When Context came out, we learned about tree local state. I thought Context was perfect for tree local state. Overtime, after practicing with it for a while (see: years), you _could_ use it for tree local state. However, it had its share of downsides: poor performance characteristics and a developer experience issues.
 
 Tree local state is better answered by Zustand (and its friends, of course: recoil, [jotai](https://github.com/pmndrs/jotai)).
 
-What does that term even mean, _tree local state_? In a component,  you have a `useState` hook. Whatever that state is, it is _local_ state to that component. You could use it to render some elements, you could use it in an event handler, perhaps dangerously use it in a side effect, or hey, you could even pass it down to another component as a prop. So maybe you can call that local state and everyone would know roughly what you mean.
+What does that term even mean, _tree local state_? In a component, you have a `useState` hook. Whatever that state is, it is _local_ state to that component. You could use it to render some elements, you could use it in an event handler, perhaps dangerously use it in a side effect, or hey, you could even pass it down to another component as a prop. So maybe you can call that local state and everyone would know roughly what you mean.
 
-What if you wanted some state that's shared by a group of components? Since React represents everything internally as a tree, maybe you could extend our local component state and say this higher level state, this shared state, is tree local state.
+What if you wanted some state that's shared by a group of components? Since React represents everything internally as a tree, maybe you could extend our local state concept and say that higher level state, that shared state, is tree local state. It's one step below _global state_, but no less useful.
 
 Zustand does that!
 
-One of my favorite features of Zustand is the decoupling between it and React. With redux, you can weasal your way out of having to do everything inside of React computers. That's great. With Context, on the other hand, it is a lot more difficult.
+One of my favorite features of Zustand is the decoupling between interacting with tree local state and interacting with components. With redux, you can weasel your way out of having to do everything inside of components. That's great. With Context, on the other hand, it is a lot more difficult or impossible. Zustand, having historical scaffolding, build their API for both use cases, either in-component or out-of-component. It's pretty clever.
 
 ## Example
 
