@@ -1,6 +1,6 @@
 ---
 title: "NextJS with Standalone Mode"
-description: "Docker image optimization at its finest"
+description: "Docker image optimization with output file tracing"
 publishDate: "20 Dec 2022"
 updatedDates: []
 layout: ../../layouts/BlogPost.astro
@@ -18,7 +18,9 @@ Since we run on a kubernetes cluster, we package our next webapps into docker im
 
 At the end of all this, you might end up with a 500MB+ sized docker image. Being a frontend and a backend, you have more dependencies compared to an SPA (usually, sometimes). Meanwhile, there are tons of support files bundled togther in the image. Things that aren't necessary for the Next webapp to run either.
 
-That's where the new _Output File Tracing_ comes in. Specifically, Standalone Mode. This is an amazing optimization.
+That's where [the _Output File Tracing_ feature](https://nextjs.org/docs/advanced-features/output-file-tracing) comes in. I think _Standalone mode_ better a better name. Output File Tracing can produce the `standalone` folder with everything you need to run your Next webapp.
+
+> This feature helps reduce the size of deployments drastically. Previously, when deploying with Docker you would need to have all files from your package's dependencies installed to run next start. Starting with Next.js 12, you can leverage Output File Tracing in the .next/ directory to only include the necessary files.
 
 Set your `next.config.js`:
 
@@ -29,7 +31,7 @@ module.exports = {
 }
 ```
 
-Then update your `Dockerfile` to use the new standalone structure. These details are mentioned, but I thought they were unclear without an example `Dockerfile`:
+Then update your `Dockerfile` to use the new standalone structure. These [details are mentioned](https://nextjs.org/docs/advanced-features/output-file-tracing#automatically-copying-traced-files), but I thought they were unclear without an example `Dockerfile`:
 
 >This will create a folder at .next/standalone which can then be deployed on its own without installing node_modules.
 >
