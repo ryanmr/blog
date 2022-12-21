@@ -1,0 +1,73 @@
+---
+title: "Zustand: a middleground"
+description: "Zustand, the middleground between context and redux"
+publishDate: "21 Dec 2022"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+[Zustand](https://github.com/pmndrs/zustand) is one of those _new_ state management libraries. Invented well after the rise and pleatu of redux, invented well after the easification of [Context](https://reactjs.org/docs/context.html), invented in a time where there new ideas coming along all the time.
+
+Tree local state is what I used to think Context. While it _could_ be for tree local state, it has poor performance characteristics and a developer experience problem.
+
+Tree local state is better answered by Zustand (and its friends, of course: recoil, [jotai](https://github.com/pmndrs/jotai)).
+
+What does that term even mean, _tree local state_? In a component,  you have a `useState` hook. Whatever that state is, it is _local_ state to that component. You could use it to render some elements, you could use it in an event handler, perhaps dangerously use it in a side effect, or hey, you could even pass it down to another component as a prop. So maybe you can call that local state and everyone would know roughly what you mean.
+
+What if you wanted some state that's shared by a group of components? Since React represents everything internally as a tree, maybe you could extend our local component state and say this higher level state, this shared state, is tree local state.
+
+Zustand does that!
+
+One of my favorite features of Zustand is the decoupling between it and React. With redux, you can weasal your way out of having to do everything inside of React computers. That's great. With Context, on the other hand, it is a lot more difficult.
+
+## Example
+
+Here's my decoupling example.
+
+```ts
+interface Video {
+  videoId: string;
+}
+
+interface VideoStoreState {
+  videos: Video[];
+  addVideo: (video: Video) => void;
+}
+
+const videoStore = createVanilla<VideoStoreState>((set) => ({
+  videos: [],
+  addVideo: (video: Video) =>
+    set((state) => ({ videos: [...state.videos, video] })),
+}));
+
+const useVideoStore = create(videoStore);
+```
+
+You can [use Zustand without React](https://github.com/pmndrs/zustand#using-zustand-without-react)! You can create a store outside of React's `<App />` and it can just work. I can admit this now, it is effectively _Global State_ in this case, but you can treat it as if it were tree local. You might not need so much rigor.
+
+You can define the state the store contains, and the actions you can mutate the store with.
+
+Now, with some out-of-react side effect that your application might have, you can trigger state changes. Let's say that's a `ws` connection, and someone has added a `video`. Maybe that's like this:
+
+```ts
+// hypothentical out of band event handler, possibly coming from a `ws`
+window.addEvent("add-new-video", (event) => {
+    videoStore.getState().addVideo({videoId: event.params.videoId});
+});
+```
+
+Then using the `useVideoStore` hook, you can connect the out-react-state right back into React, easily.
+
+```ts
+export function DisplayCase() {
+    // slice the state to get the videos
+    const videos = useVideoStore((state) => state.videos);
+    return videos.map(video => <VideoDisplay key={video.videoId} id={video.videoId} />);
+}
+```
+
+Now, it's not as [rigorous as Redux or RTK](https://redux-toolkit.js.org/). And it's not as annoying as Context and making all these bells and whistles yourself. It's a perfectly fine middleground.
+
+Give it a try.
+
+P.S. [give Immer](https://immerjs.github.io/immer/) [a try](https://github.com/pmndrs/zustand#sick-of-reducers-and-changing-nested-state-use-immer)
