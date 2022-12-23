@@ -1,0 +1,25 @@
+---
+title: "ncu: skip pinned versions"
+description: "they're pinned for a reason you know"
+publishDate: "23 Dec 2022"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+I irrationally like [the npm-check-updates package](https://www.npmjs.com/package/npm-check-updates) `ncu`. I [wrote about it before too](/posts/npm-check-updates), when and why using might be useful. `ncu` is great with `ncu --format group`, but there is another feature you can use and combine.
+
+`--filterVersion` is a flag you can pass, to , uh, filter versions. Why would you want that? Many modern starters default to pinned dependencies. That gives you some assurance they all work together in a well knwon state. You can update them specifically, together as a group, when you're ready.
+
+But the usual `ncu` workflow forces you into interactive mode so you can toggle those pinned dependencies back off. That's where the `--filterVersion` comes in. Based [on this Github issue](https://github.com/raineorshine/npm-check-updates/issues/562#issuecomment-728230501), you can use `--filterVersion` to ignore any pinned dependencies:
+
+```
+ncu --filterVersion "/^[~^]/"
+```
+
+The regex syntax here is... too hard to read and impossible to remember. Consider creating an alias instead:
+
+```
+alias ncup='ncu --filterVersion "/^[~^]/"'
+```
+
+`ncup`, where the `p` is for _pinned_.
