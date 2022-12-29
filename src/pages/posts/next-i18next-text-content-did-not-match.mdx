@@ -1,0 +1,49 @@
+---
+title: "next-i18next: Text content did not match"
+description: "Just upgraded, it used to match, why is everything so flimsy?"
+publishDate: "29 Dec 2022"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+On a [Next webapp](https://nextjs.org/), I am using [next-i18next](https://github.com/i18next/next-i18next) (along with its peer dependencies, i18next and react-i18next).
+
+During a routine upgrade, I bumped dependencies in my `package.json` and ran a re-`yarn` right after.
+
+```diff
+-    "i18next": "^22.0.6",
+-    "next-i18next": "^13.0.0",
++    "i18next": "^22.4.6",
++    "next-i18next": "^13.0.2",
+-    "react-i18next": "^12.0.0"
++    "react-i18next": "^12.1.1"
+```
+
+Well, after that upgrade, everthing that was working just fine broke!
+
+> next-dev.js?3515:20 Warning: Text content did not match. Server: "welcome:business_units.welcome_message" Client: "Welcome to our..."
+
+This error _was_ occuring when I had used `useTranslation` with keys that were not defined yet in the `serverSideTranslations` call:
+
+```
+export const getStaticProps = async ({ locale }: any) => {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["login", "common", "welcome"])),
+    },
+  };
+};
+````
+
+That was in place and yet this error was still coming up.
+
+There's a bunch of [troubleshooting tips](https://github.com/i18next/next-i18next/blob/master/TROUBLESHOOT.md#how-to-explicitly-pass-the-config) with next-i18next, some focused on other errors, some focused on dependency conflicts. I followed the instructions for reconciling dependency conflicts, but that wasn't the issue this time.
+
+The solution I stumbled onto was converting any instance of the auto-imported `useTranslation` from `react-i18next` (which I was used to using from SPA implementations) into a `next-i18next` import.
+
+```diff
+-import { useTranslation } from "react-i18next";
++import { useTranslation } from "next-i18next";
+```
+
+This removed this type of error. I suppose somewhere in one of the minor version updates, there was a refinment of how those `useTranslation` hooks hook into either tree state or global scope state.
