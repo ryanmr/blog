@@ -1,0 +1,56 @@
+---
+title: "mui: styled and sx just works"
+description: "mui is no fun, but sx makes it bearable"
+publishDate: "29 Dec 2022"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+On a webapp with [mui](https://mui.com/) (AKA Material UI), there's everyone favorite component: `<Box />`. Why is [Box beloved](https://mui.com/material-ui/react-box/)? It's because unlike our usual goto div-soup generator, `div` lacks the `sx` prop. It's sort of a mix between inline styles, inline "styled component" syntax, and maybe even a little bit of inline utility css. All in one. Box is boundless with potential.
+
+`<Box />` desugars into `<div />` unless you give it a `component="ul"` prop, then it could become a `<ul />`. My assumption had been for a long time that without Box, I would not get the benefits of having `sx` props as an option. But you can! Using `styled`.
+
+Here's look at an example, we want to make vertical list using a `ul`. Even though it would be great if we could do this, this fails:
+
+```tsx
+<br food={{}} />
+<ul sx={(theme) => ({ /* 👈 in general, this would not work, you can't use the sx prop on an ordinary tagged element */
+  listStyle: "none",
+  display: "flex",
+  flexDirection: "column",
+  gap: theme.spacing(6),
+})}>
+    /* more elements */
+</ul>
+```
+
+As an alternative that actually works, using [`@mui/system` `styled`](https://mui.com/system/styled/), we can give a name to these styles _and_ preserve the `sx` prop capability allowing us to have adhoc styles when we need them still.
+
+```tsx
+export const VerticallySpacedList = styled(`ul`)(({ theme }) => ({
+  listStyle: "none",
+  display: "flex",
+  flexDirection: "column",
+  gap: theme.spacing(6),
+}));
+```
+
+Now, we can reference this as we'd like:
+
+```tsx
+<VerticallySpacedList>
+    /* more elements */
+</VerticallySpacedList>
+```
+
+What's nice about this is that we can use `sx` on `<VerticallySpacedList />`:
+
+```tsx
+<VerticallySpacedList sx={{fontSize: "2rem", lineHeight: 1.5}}>
+    /* more elements */
+</VerticallySpacedList>
+```
+
+This saves us from have an explosion of one-off subtly named components like `VerticallySpacedList` and `VerticallySpacedListWithBiggerTextSize` and `BoldVerticallySpacedList`. There's a core, common style as a base and then `sx` handles incidentials.
+
+[There's nothing quite like Tailwind](https://tailwindcss.com/) for utility css, but with `<Box />`, `sx` and `styled`, maybe it comes in a distant second.
