@@ -8,9 +8,20 @@ layout: ../../layouts/BlogPost.astro
 
 You can follow me [@ryanmr@mastodon.cloud](https://mastodon.cloud/@ryanmr). That's how it all begins.
 
+## Finding an instance
+
+Just because someone you know is already on an instance, doesn't mean you have to follow them there with your own account. Instead you can choose any instance that you like.
+
+* The primary way of finding a server is the [joinmastodon list](https://joinmastodon.org/servers). Plenty of options, 
+* With an incredibly basic wizard and with too few heuristics, you can use [instances.social](https://instances.social/) to help you find an instance. I recommend an instance with some existing userbase in any case.
+
+I'm on `mastodon.cloud`, but don't sign up there. The instance is on an ancient version of Mastodon and there are missing features all over. I've been using this server since 2018 when Mastodon was initially generally available. I'll move one day.
+
+If the choices are overwhelming, a general purpose instance is probably your best bet. The best general purpose servers will cahnge over time. So here's [a search to help you out](https://www.google.com/search?q=best+general+purpose+mastodon+server).
+
 ## Finding existing friends
 
-I used a few tools to bring over my Twitter feed.
+I used a few tools to bring over my Twitter feed. This made my Mastodon timeline feel just as alive as my Twitter timeline, for the most part.
 
 1. [Fedifinder](https://fedifinder.glitch.me/#); Fedifinder scans your _following_ list handle's for the `@name@domain` format. Then it produces a CSV of them for you to safely merge import into your Mastodon instance. Assuming nobody is getting banned for adding links to their profiles, this makes a lot of sense.
 2. [Twitodon](https://twitodon.com/); Twitodon is a less automated tool, but if there's enough traffic to the service, it will be useful eventually. When you sign into Twitter and your Mastodon instance with Twitodon, it maps the connected accounts so that future lookups return results when someone else searches for you. 
@@ -21,6 +32,10 @@ There's some [webfinger trickery](https://www.hanselman.com/blog/use-your-own-us
 
 1. [Followgraph](https://followgraph.vercel.app/#searchForm); I really wanted this to work, but it fails on my instance. There are pending Github issues so the particular bug might get fixed eventually, or it could turn out to be a fundemental issue with my instance. Anyway, what it _should do_ is looks at my Mastodon `"follows' follows"` and then ranks them with some basic heuristics and suggests you follow them. There are pros and cons to this approach, but it's a small network out there right now and you can prune back and branch out later.
 2. [Fedi Follows](https://mastodon.online/@FediFollows) is an account that posts about cool accounts to follow. While this won't necessarily make you friends directly, it can help you find topics that have some traction already.
+
+## Making the experience better
+
+* [FediAct](https://chrome.google.com/webstore/detail/fediact/lmpcajpkjcclkjbliapfjfolocffednm); FediAct is an extension for Chrome and Firefox that enhances the federated experience. When you wind up on a Mastodon instance other than your own, you'll likely get frustrated having to copy their username or their URL into your instance and searching for them. Instead, FediAct will gently rewrite the page's HTML/JS so that clicking _Follow_ actually does what it's supposed to do - without all those extra steps. You can even like posts! I had an issue with _Reply_ but it could be related to my old instance.
 
 ## Clients
 
