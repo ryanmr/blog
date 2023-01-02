@@ -1,0 +1,41 @@
+---
+title: "Mastodon: tips and tricks"
+description: "Hopefully this lasts more than a month"
+publishDate: "2 Jan 2023"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+You can follow me [@ryanmr@mastodon.cloud](https://mastodon.cloud/@ryanmr). That's how it all begins.
+
+## Finding existing friends
+
+I used a few tools to bring over my Twitter feed.
+
+1. [Fedifinder](https://fedifinder.glitch.me/#); Fedifinder scans your _following_ list handle's for the `@name@domain` format. Then it produces a CSV of them for you to safely merge import into your Mastodon instance. Assuming nobody is getting banned for adding links to their profiles, this makes a lot of sense.
+2. [Twitodon](https://twitodon.com/); Twitodon is a less automated tool, but if there's enough traffic to the service, it will be useful eventually. When you sign into Twitter and your Mastodon instance with Twitodon, it maps the connected accounts so that future lookups return results when someone else searches for you. 
+
+There's some [webfinger trickery](https://www.hanselman.com/blog/use-your-own-user-domain-for-mastodon-discoverability-with-the-webfinger-protocol-without-hosting-a-server) you can do to make finding you easier for others, especially if you use a well known email address (like `firstname@lastname.com`).
+
+## Making new friends
+
+1. [Followgraph](https://followgraph.vercel.app/#searchForm); I really wanted this to work, but it fails on my instance. There are pending Github issues so the particular bug might get fixed eventually, or it could turn out to be a fundemental issue with my instance. Anyway, what it _should do_ is looks at my Mastodon `"follows' follows"` and then ranks them with some basic heuristics and suggests you follow them. There are pros and cons to this approach, but it's a small network out there right now and you can prune back and branch out later.
+2. [Fedi Follows](https://mastodon.online/@FediFollows) is an account that posts about cool accounts to follow. While this won't necessarily make you friends directly, it can help you find topics that have some traction already.
+
+## Clients
+
+* Android
+    * I was using the first party [Mastodon client](https://play.google.com/store/apps/details?id=org.joinmastodon.android) for a while but I wanted to try out other apps.
+    * I am using [Tusky](https://play.google.com/store/apps/details?id=com.keylesspalace.tusky&hl=en_US&gl=US&pli=1). It works just fine for me. 
+* iOS
+    * I am using first party [Mastodon client](https://apps.apple.com/us/app/mastodon-for-iphone/id1571998974) on my iPad.
+    * I tried using [Metatext](https://apps.apple.com/us/app/metatext/id1523996615) but for whatever reason (primarily the non-iPad optimized views) I did not end up liking it very much. I am sticking with the first party client for now.
+    * [Ivory is a Tweetbot fork from Tapbots](https://tapbots.social/@ivory/109433914793802708). It's in development but I expect it to be great.
+* Web
+    * I use the Mastodon web client, but in Advanced Mode.
+        * Go to `Settings > Preferences > Appearance > ADVANCED WEB INTERFACE`
+        * Check the box
+        * This enables a TweetDeck-like experience
+
+---
+
