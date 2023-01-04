@@ -1,0 +1,26 @@
+---
+title: "With long text lines with fmt"
+description: "Prettier, why can't you do this?"
+publishDate: "3 Jan 2023"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+If you have a junk of text you'd like to line wrap in a comment block, good for you! Detailed and meaningful comments are so helpful. But what if you use JavaScript and Prettier will not touch comment blocks for some reason and refuses to wrap them?
+
+With macos, there's a great trick:
+
+1. Copy the "paragraph" or chunk of text
+2. With your terminal, run this command:
+    
+    ```
+    pbpaste | fmt -w 80 | pbcopy
+    ```
+
+    Definitely try a [`man fmt`](https://linux.die.net/man/1/fmt) for more details.
+
+    [`fold`](https://linux.die.net/man/1/fold) is another line wrapping tool, but does a little less. That could be useful in other situations too.
+
+3. Now on your clipboard, you should have a formatted chunk of text that's perfectly line broken and word wrapped.
+
+There's probably a [linux variant too](https://www.baeldung.com/linux/clipboard), if you need it depending on your distribution and other tooling.
