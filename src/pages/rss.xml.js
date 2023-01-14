@@ -4,6 +4,8 @@ import sanitizeHtml from "sanitize-html";
 const postImportResult = import.meta.glob("./posts/*.mdx", { eager: true });
 const posts = Object.values(postImportResult);
 
+// https://github.com/withastro/rfcs/discussions/419
+
 export const get = async () => {
   return rss({
     // `<title>` field in output xml
@@ -21,6 +23,7 @@ export const get = async () => {
       title: post.frontmatter.title,
       description: post.frontmatter.description,
       pubDate: post.frontmatter.pubDate,
+      content: post.Content,
     })),
     // (optional) inject custom xml
     customData: `<language>en-us</language>`,
