@@ -38,6 +38,6 @@ function validateOrder() {
 
 TypeScript will fail this code. You can't have both properties!
 
-In business logic this might be useful, though I find it more common in flip-flop states in user interface code, usually in JSX with React.
+In business logic this might be useful, though I find it more common in flip-flop states in user interface code, usually in JSX with React. For example, in a [React Hook](https://beta.reactjs.org/learn/reusing-logic-with-custom-hooks), throwing an error is much more disruptive, and cause undefined React behavior when the number of hooks-calls changes. Returning errors that are part of business logic of the user interface then is a little better in this situation. Throwing still has a place, but then you have to rely on [Error Boundries](https://reactjs.org/docs/error-boundaries.html) or other handlers.
 
 If simple strings for errors are not enough, you can [add discriminated type unions](https://blog.logrocket.com/understanding-discriminated-union-intersection-types-typescript/) and have errors also carry their own additional properties.
