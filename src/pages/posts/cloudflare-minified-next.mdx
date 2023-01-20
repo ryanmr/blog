@@ -29,6 +29,8 @@ Here are the errors:
 > There was an error while hydrating. Because the error happened outside of a Suspense boundary, the entire root will switch to client rendering.
 > [citation](https://reactjs.org/docs/error-decoder.html/?invariant=423)
 
+We have a case of _bad hydration_.
+
 Even though this was only a _dev_ deployment, Next and our dockerization process produces minified code. That means all of these warnings were shown as error codes with links to the react docs. The docs tell you to use the actual react _dev_ mode for troubleshooting, but turning that on in Next is quite elusive. Turning off minification was only slightly helpful, but the stack trace was only in React's library code anyway.
 
 Next up, splitting the offending page up into pieces and removing sections until the error went away. Our landing page is roughly _four_ whole components. Crazy, right? We chopped the page in half, and rendered only the first two. We ran this through our internal dev deployment and then to our external dev deployment. These errors persisted!
