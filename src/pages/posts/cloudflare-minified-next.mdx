@@ -90,9 +90,15 @@ The only difference between the deployments were where they were running. And. C
 
 It turns out, Cloudflare was writing our HTML. Very slightly. Remember this?
 
-> `We are your goto business partner.  We'll be right here with you every step of the way.`
+What we expected (replaced the literal spaces in with `&nbsp;`.)
+
+> `We are your goto business partner.&nbsp;&nbsp;&nbsp;We'll be right here with you every step of the way.`
+
+What we were getting from the server:
 
 > `We are your goto business partner. We'll be right here with you every step of the way.`
+
+They don't match!
 
 In HTML, spaces between words and elements collapse. Since everything worked and looked OK locally and in internal dev, we thought it would be fine in the external dev deployment environment. Cloudflare saves bytes by minifying this HTML before its sent down to the browser. Unfortunately Next and React's hydration is pretty sensitive.
 
