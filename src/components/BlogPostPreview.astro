@@ -20,9 +20,9 @@ const latestUpdateIfAvailable = updatedDates?.[0];
 		</a>
 		<p class="text-base text-white">{description}</p>
 		{latestUpdateIfAvailable ? <div>
-			<span class="text-xs">updated: <time>{latestUpdateIfAvailable}</time></span>
-			<span  class="text-xs">published: <time>{publishDate}</time></span>
-		</div> : <span class="text-xs">published: <time>{publishDate}</time></span>}
+			<p class="text-xs">updated: <time>{latestUpdateIfAvailable}</time></p>
+			<p  class="text-xs">published: <time>{publishDate}</time></p>
+		</div> : <p class="text-xs"><time>{publishDate}</time></p>}
 	</header>
 
 
