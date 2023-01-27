@@ -1,0 +1,43 @@
+---
+title: "TypeScript: Mutually Exclusive Properties"
+description: "Result, OK, Err; what a clever pattern"
+publishDate: "14 Jan 2023"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+Do you ever use exceptions or throw errors? There's a time and a place for that - for truly exceptional operations that need to break the control flow of an application. It's often nice handling "as part of doing business" errors at the same level as the actual end result you wanted in the first place.
+
+End result... oh, that reminds me of the [result type](https://doc.rust-lang.org/std/result/) from Rust. It's not alone of course, there's also the [Optional from Java](https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html), although Optional usually serves a different role.
+
+In TypeScript, there's no result type out of the box. It would be pretty easy to make a generic result type and use it throughout a codebase, but it would be up to you and your conventions to make it work.
+
+I use the wonderful power of mutually exclusive properties in TypeScript to make a situation specific result type. The [key piece is `never`](https://www.typescriptlang.org/docs/handbook/basic-types.html#never).
+
+```ts
+type OrderErrorOpt = "out-of-stock" | "incomplete-transaction";
+
+type OrderData = { orderId: number, productName: string };
+
+type OrderResult = { error: OrderErrorOpt, data?: never  } | { error?: never, data: OrderData };
+```
+
+In this basic case, I have a set of strings that represent various error states. If `error` is set, it is enforced at the type level that `data` is not set. Otherwise, if the `data` object is set, it is enforced that `error` is not set.
+
+Maybe you accidentially write a function like this:
+
+```ts
+function validateOrder() {
+    // ...
+
+    if (!isPaymentTransactionComplete()) {
+        return {error: "incomplete-transaction", data: {orderId: 1, productName: "bulkbag"}}
+    }
+}
+```
+
+TypeScript will fail this code. You can't have both properties!
+
+In business logic this might be useful, though I find it more common in flip-flop states in user interface code, usually in JSX with React. For example, in a [React Hook](https://beta.reactjs.org/learn/reusing-logic-with-custom-hooks), throwing an error is much more disruptive, and cause undefined React behavior when the number of hooks-calls changes. Returning errors that are part of business logic of the user interface then is a little better in this situation. Throwing still has a place, but then you have to rely on [Error Boundries](https://reactjs.org/docs/error-boundaries.html) or other handlers.
+
+If simple strings for errors are not enough, you can [add discriminated type unions](https://blog.logrocket.com/understanding-discriminated-union-intersection-types-typescript/) and have errors also carry their own additional properties.

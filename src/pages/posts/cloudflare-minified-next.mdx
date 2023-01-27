@@ -1,0 +1,118 @@
+---
+title: "Cloudflare minfied spaces and broke Next hydration"
+description: "It's full of spaces..."
+publishDate: "20 Jan 2023"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+We had been working on a [Next app](https://nextjs.org/) for a while. We had it running just fine on our internal dev deployment environment, and we were ready to get it out on the Internet. We use the same docker image in our internal environments as we do in our external environments. We have Cloudflare setup on our testing subdomain, just like it would be in production. You know what they say [about production parity](https://12factor.net/dev-prod-parity) after all.
+
+A couple things about our app:
+
+* we use Okta for authentication and authorization, but we have to isolate most of that Okta code behind [`next/dynamic`](https://nextjs.org/docs/advanced-features/dynamic-import) with SSR turned off so Okta does not render during SSR
+    * we have to do all of that because Okta libraries and widgets make certain assumptions about accessing `window`
+    * truly, this is a deep dive post for another day
+* we use [next-i18next](https://github.com/i18next/next-i18next) for i18n support
+    * I have another post covering [Text content did not match](/posts/next-i18next-text-content-did-not-match); and surprise — it's not totally unrelated
+
+When we deployed to the external dev environment, we were hit with non-page-breaking errors. Everything _looked_ fine and _worked_ fine but seeing big red errors in the devtools console is no fun. Explaining why this new clean codebase produces high errors rendering static content on the landing page is also no fun.
+
+Here are the errors:
+
+> Text content does not match server-rendered HTML.
+>
+> [citation](https://reactjs.org/docs/error-decoder.html/?invariant=425)
+
+> Hydration failed because the initial UI does not match what was rendered on the server.
+>
+> [citation](https://reactjs.org/docs/error-decoder.html/?invariant=418)
+
+> There was an error while hydrating. Because the error happened outside of a Suspense boundary, the entire root will switch to client rendering.
+>
+> [citation](https://reactjs.org/docs/error-decoder.html/?invariant=423)
+
+We have a case of _bad hydration_.
+
+Even though this was only a _dev_ deployment, Next and our dockerization process produces minified code. That means all of these warnings were shown as error codes with links to the react docs. The docs tell you to use the actual react _dev_ mode for troubleshooting, but turning that on in Next is quite elusive. Turning off minification was only slightly helpful, but the stack trace was only in React's library code anyway.
+
+Next up, splitting the offending page up into pieces and removing sections until the error went away. Our landing page is roughly _four_ whole components. Crazy, right? We chopped the page in half, and rendered only the first two. We ran this through our internal dev deployment and then to our external dev deployment. These errors persisted!
+
+We thought the special `next/dynamic`-guarded Okta Widget code might be making a mess in there. We looked at other pages that used the same widget, but they did not show these errors. 
+
+We turned off all the components on the landing page as a sanity check. No errors.
+
+Next to our `next/dynamic`-guarded Okta Widget, we have a bunch of wonderful welcoming text that comes from our language repository. It's not server side rendered from a novel data source, its all static site generation at build time during our deployment phases. We took out everything out but that. Here's an example of what that code looks like:
+
+```tsx
+<Box sx={{ display: "flex", flexDirection: "column", gap: 8 }}>
+    <Typography
+    sx={{
+        lineHeight: 1,
+        fontSize: "2rem",
+        fontWeight: "bold",
+        textTransform: "uppercase",
+    }}
+    >
+    {t("homepage:welcome.line1")}
+    </Typography>
+
+    <Typography
+    variant="h1"
+    sx={{
+        fontWeight: "bold",
+        fontSize: { xs: "2rem", lg: "4rem" },
+    }}
+    >
+    {t("homepage:welcome.line2")}
+    </Typography>
+
+    <Typography
+    variant="h2"
+    sx={{
+        fontWeight: "500",
+        fontSize: "1.2em",
+        textShadow: "1px 1px 4px #fff",
+    }}
+    >
+    {t("homepage:welcome.line3")}
+    </Typography>
+</Box>
+```
+
+This same code produced no errors locally or in internal dev deployment environments. Just, nothing. It's totally inert code too, its an h1, h2 and a paragraph tag. Maybe [mui](https://mui.com/) with [emotion](https://emotion.sh/docs/introduction) breaks something, but if that were the case, we'd expect to say it on other environments and locally.
+
+We continued our search. Commented out all the lines of text, and one by one, re-enabled them. The errors left, and then on `homepage:welcome.line3`, they came back.
+
+What's going on here! Locally and internally, this never happens. It's just a string! `homepage:welcome.line3` says something like `We are your goto business partner.  We'll be right here with you every step of the way.` It's entirely inert.
+
+The only difference between the deployments were where they were running. And. Cloudflare. It _transforms_ responses for optimization with [Auto Minify](https://support.cloudflare.com/hc/en-us/articles/200168196-Using-Cloudflare-Auto-Minify). That's on in production, but we're not using this app yet in production, so we had no idea. Until we made it to external dev.
+
+It turns out, Cloudflare was writing our HTML. Very slightly. Remember this?
+
+What we expected (replaced the literal spaces in with `&nbsp;`.)
+
+> `We are your goto business partner.&nbsp;&nbsp;&nbsp;We'll be right here with you every step of the way.`
+
+What we were getting from the server:
+
+> `We are your goto business partner. We'll be right here with you every step of the way.`
+
+They don't match!
+
+In HTML, spaces between words and elements collapse. Since everything worked and looked OK locally and in internal dev, we thought it would be fine in the external dev deployment environment. Cloudflare saves bytes by minifying this HTML before its sent down to the browser. Unfortunately Next and React's hydration is pretty sensitive.
+
+We had a few options for mitigating this error:
+
+1. use in JSX preprocessing to remove extraneous spaces
+    * pro: quick to implement with a `replaceAll` and regex
+    * con: every usage requires the modification; and it's easy to forget
+2. update the source system
+    * pro: our language repository is not much more than fancy JSON files
+    * con: takes a little while to safely update the json 
+    
+We went with approach 2, updating the source system's strings.
+
+This error could come in other flavors too. Having randomized data or generated dates with too much precision could cause a similar kind of text mismatch.
+
+**TL;DR** Cloudflare minfied _spaces_ in our HTML. Next and React hydration broke because the DOM did not match as expected.
