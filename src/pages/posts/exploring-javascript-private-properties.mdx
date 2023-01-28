@@ -1,0 +1,135 @@
+---
+title: "Exploring JavaScript Private Properties"
+description: "This post is #public"
+publishDate: "26 Jan 2023"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+Classes in JavaScript have support for [private properties](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_class_fields). As a TypeScript user though, you may be more familiar with [member visibility](https://www.typescriptlang.org/docs/handbook/2/classes.html#member-visibility). It's all that _public_ _private_ _protected_ stuff you learned in school about encapsulation and separation of concerns that you promptly threw out the window when we collectively decided classes were no longer cool.
+
+We can argue all day if classes do have legitimately vaiable purposes. Let's not argue about that here. Let's talk about a cool ramification of those [private properties](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_class_fields).
+
+In TypeScript, you could write something like this:
+
+```ts
+interface InternalState {
+    x: number;
+    y: number;
+}
+
+class Service {
+    _state: InternalState;
+
+    constructor(x: number, y: number) {
+        this._state = {x, y};
+    }
+}
+```
+
+This gives you a class. It sort of desugars into a fancy closure that gives you little holes called methods that expose inner functionality for instance created. Each instance has its own internal state too.
+
+With this approach though, TypeScript cannot know if you _intended_ `_state` to be generally available for any external caller. For example:
+
+```ts
+const service = new Service(1, 2);
+console.log(service._state); // {x: 1, y: 2}
+```
+
+This will log the internal state object just fine. So much for encapsulation then, huh.
+
+We can use those member visibility specifiers to help TypeScript keep track of what's public and private.
+
+```ts
+interface InternalState {
+    x: number;
+    y: number;
+}
+
+class Service {
+    private state: InternalState; // private was added, the _convention fell off
+
+    constructor(x: number, y: number) {
+        this.state = {x, y};
+    }
+}
+```
+
+Back to this example:
+
+```ts
+const service = new Service(1, 2);
+console.log(service.state); // Property 'state' is private and only accessible within class 'Service'.(2341)
+```
+
+TypeScript will enforce the _private_ member visibility. That's great.
+
+However, you can use JavaScript and accidentially or intentionally access private members anytime you like. There are no rules when to JavaScript member access. Almost.
+
+Let's update the example again, but now we're using [private properties](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_class_fields).
+
+```ts
+interface InternalState {
+    x: number;
+    y: number;
+}
+
+class Service {
+    #state: InternalState; // # was added, private fell off
+
+    constructor(x: number, y: number) {
+        this.#state = {x, y};
+    }
+}
+```
+
+The syntax is perhaps the worst part of this. VS Code does not recognize `#state` as special syntax, so that makes me think VS Code views the `#` as part of the property's name. It's all sorts of weird.
+
+```ts
+const service = new Service(1, 2);
+console.log(service.#state);
+                            // TypeScript: Property 'state' does not exist on type 'Service'.(2339)
+                            // JavaScript: Uncaught SyntaxError: Private field '#state' must be declared in an enclosing class
+```
+
+We get a new error from TypeScript. That's a nice error, but it's not the whole story. What happens with JavaScript directly? JavaScript will also throw an error now that notes `#state` is a private field.
+
+It is still interesting you can `console.log(service)` here and _see_ `#state` inside of the instantiated object. 
+
+You get runtime safety instead of only compile time safety, so that's a win.
+
+There's one more thing. With `#state`, what happens when this code runs through minification?
+
+Here's our TypeScript code transpiled in JavaScript (through `tsc` with very modern settings):
+
+```js
+"use strict";
+class Service {
+    #state;
+    constructor(x, y) {
+        this.#state = { x, y };
+    }
+}
+```
+
+Here's a [minified variant](https://codebeautify.org/minify-js) with:
+
+```js
+"use strict";class Service{#e;constructor(e,s){this.#e={x:e,y:s}}}const service=new Service(1,2);console.log(service.state);
+```
+
+That's not so bad, but let's format that with Prettier for inspect purposes:
+
+```js
+"use strict";
+class Service {
+  #e;
+  constructor(e, s) {
+    this.#e = { x: e, y: s };
+  }
+}
+```
+
+The semantics of `#state` are preserved. There's _no_ possibility of outside tampering with that property now. With `private` before, there was only at compile time safety and there was no signal to a minifier that it was safe to [munge a property name](https://en.wikipedia.org/wiki/Mung_(computer_term)) like that. That means these classes are much more like their ancestral functions than ever before. With regular functions, variables declared internally are only available in that scope, and most minification would shirnk those variables perfectly. Of course the `#` prefix persists, but it acts much more like a local variable than it used to.
+
+With this _"trick"_, you could (you won't) save bytes by switching to private properties. Either way, I think it's cool that the language and ecosystem has developed enough now that its gone full circle. JavaScript has functions and closures. Cool. But we want to be like Java and use Classes. Ok, now JavaScript has fancy closures that are sort of like Classes. But we want good predictable safe behavior. Ok, now JavaScript has TypeScript to enforce behavior. But we want runtime safety too! Ok, now JavaScript has private properties that emulate functionality you had all along.
