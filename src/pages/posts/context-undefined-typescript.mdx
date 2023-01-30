@@ -1,0 +1,131 @@
+---
+title: "Avoid undefined state in React Context"
+description: "Improve quality of life with this context pattern"
+publishDate: "29 Jan 2023"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+The [react docs were somewhat sparse on context](https://reactjs.org/docs/context.html). The [beta does offers slightly more context](https://beta.reactjs.org/learn/passing-data-deeply-with-context), but there are some patterns with the broader ecosyste (TypeScript) still missing.
+
+Let's not think about whether or not the following situation is suited for context or another state management approach. Let's just believe context is fine for now.
+
+Suppose you have a state for a shopping cart. You want to access state from deep in the tree, maybe even tinker with state, adding and removing items.
+
+Let's write the context:
+
+```ts
+interface Item {
+    sku: number;
+    name: string;
+    // you can imagine more cart itmes if you want to
+}
+
+interface CartCtx {
+    items: Item[];
+    total: number; // somehow derived and set, maybe from the server? let's not think about it too hard
+
+    addItem: (item: Item) => void;
+}
+
+const CartContext = React.createContext<CartCtx | undefined>(undefined); // remember this one
+
+interface CartProviderProps extends PropsWithChildren {}
+
+function CartProvider({children}: CartProviderProps) {
+    const [items, setItems] = useState<Item[]>([]);
+    const [total, setTotal] = useState(0);
+
+    // let's imagine implementations for the functions
+    function addItem(item: Item) {
+        //...
+    }
+    
+    return <CardContext.Provider value={{items, total, addItem}}>{children}</CartContext.Provider>
+}
+```
+
+With TypeScript in the mix here it is longer than it is with plain JavaScript, but that's what you exchange for TypeScript's safety. At a high level:
+
+1. an interface representing a cart item
+2. an interface representing the actual content of the context
+3. the react created `CartContext`
+  * notice that it is typed: `CartCtx | undefined` because _must_ give it an initial value
+4. an interface for the provider component (using `PropsWithChildren`)
+5. a functional component storing state, and providing state and functions via provider `value`
+
+Imagine a usage like this:
+
+```ts
+function DisplayTotal() {
+    const ctx = useContext(CartContext);
+
+    return (
+        <div>
+            Total: {ctx.total}
+        </div>
+    );
+}
+```
+
+We all want this to work but TypeScript will error out!
+
+`ctx` may be undefined. Remember, we explicitly allowed the context value to be `undefined` when we made it. Making that original error go away moves the problem along. No fun at all. As an alternative, you could bail out early if `ctx` is not set, but that might be undesirable (it is).
+
+```ts
+function DisplayTotal() {
+    const ctx = useContext(CartContext);
+
+    if (!ctx) {
+        return null;
+    }
+
+    return (
+        <div>
+            Total: {ctx.total}
+        </div>
+    );
+}
+```
+
+There's something we can do when we understand what that default value _really_ is for. The [original docs allude to this](https://reactjs.org/docs/context.html#reactcreatecontext):
+
+> The defaultValue argument is only used when a component does not have a matching Provider above it in the tree. This default value can be helpful for testing components in isolation without wrapping them. Note: passing undefined as a Provider value does not cause consuming components to use defaultValue.
+
+The default state passed into `createContext` is really for when there is no provider and it acts as a default state. What a revelation! I always thought that the default state was for the brief moment in time before the provider is full established in the tree (like before the first render pass). To be honest, I never gave it much thought.
+
+We can use TypeScript's [type narrowing](https://www.rainerhahnekamp.com/en/type-safe-typescript-with-type-narrowing/) functionality to help us out here. Type narrowing lets the TypeScript compiler _know_ that subsequent usages of a value are of a more specific type than any among the union. Remember, our union is like this `CartCtx | undefined` when we use `createContext`.
+
+Where do we use the narrowing though? Surprisingly, this changes the caller site more than the setup sites.
+
+```ts
+function useCartContext() {
+    const ctx = useContext(CartContext);
+    
+    if (ctx === undefined) {
+        // throwing here is a nice touch because this is really a developer error
+        // and if this happened during production, something must have really broken
+        // and hopefully an error boundary is available to catch and rendering something safely
+        // oh - and - maybe you should have monitoring on your webapps too?
+        throw new Error("useCartContext can only be used in a CartProvider tree");
+    }
+
+    return ctx;
+}
+```
+
+Then with the actual usage:
+
+```ts
+function DisplayTotal() {
+    const { total } = useCartContext();
+
+    return (
+        <div>
+            Total: {ctx.total}
+        </div>
+    );
+}
+```
+
+TypeScript will not complain anymore! The _type_ of the `createContext` has been narrowed by the `ctx === undefined` in the React hook `useCartContext`.
