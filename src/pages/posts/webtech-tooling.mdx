@@ -8,60 +8,87 @@ layout: "../../layouts/BlogPost.astro"
 
 Webtech is always changing. The times of software sitting on relatievly the same stack for ten years are gone. You'll be lucky if the frontend you write today lasts without major user interface churn for two years, and incredibly fortunate if the ui framework doesn't lose developer popularity or crawl to a slog in five years. The backend ecosystem is more stable, but you might say it is just as off the _Rails_ as frontend development.
 
-Here's my recommendations on JavaScript Webtech, languages, tools, libraries, frameworks, compiler-y-thingies.
+Here's my recommendations on all things JavaScript Webtech.
 
-## Languages 
+## Languages
+
+We're talking about JavaScript webtech here. If you skipped over the CoffeeScript era, that's great. For now, the languages we really pay attention to are TypeScript and JavaScript itself.
 
 ### TypeScript 
 
-If you can start a new project today with TypeScript, using TypeScript is easier. Migrating a legacy codebase might be a challenge, the initial warmup time learning TypeScript might feel steep, but that's OK. You don't need to use recursive types, you don't need crazy interfaces. Just have it setup. Use types where they feel like inline documentation. Object shapes, arguments, and maybe that's enough to get started.
+If you can start a new project today with TypeScript, using TypeScript is easier. Migrating a legacy codebase is a challenge. The initial warmup time learning TypeScript feels steep, but that's OK. You don't need to use recursive types, you don't need crazy interfaces. Just have it setup. Use types where they feel like inline documentation. Object shapes, arguments, and maybe that's enough to get started.
 
 If the tooling can support TypeScript, turn it on.
 
 With TypeScript, you should turn on `strict`. It will cover so many edge cases for truthy, null and undefined checks. You will save time with this on, becuase you will avoid rewriting dozens of files.
 
-## Modern Bundlers / compiler-y-thingies
+🍌 As a cautionary plea, it's easy to get into the groove of TypeScript feel like you're empowered to create every typeful concoction you can think of. Resist the urge.
+
+### JavaScript
+
+At the language level, there are occasional bursts of progress. ES6 kicked things off in 2015. Roughly eight years later, the cadence of progress is still present though sometimes it feels slower than perhaps other ecosystems (thinking about Java, surprisingly, and PHP 8.x, incidentally). Nevertheless, language churn for change's sake is wasteful.
+
+If you can only write plain old JavaScript, _that's fine_. You will need diligence though. You will need to have additional runtime validation to ensure shapes and structures are what you say they are. You will need _many_ more tests!
+
+## Modern Bundlers / Transpilers / Compilers
 
 Babel and Webpack, they're our good friends. But they're slow now.
 
-`swc` and `esbuild` are the fast bundlers out there today. It's not unlikely another non-js bundler and language modifier will come along, or one of these will fall out of favor. Small webpack builds might be quick enough, but as your apps grow, your developer experience will take a hit. These two can save you from the slow.
+### swc
+* [`swc`](https://swc.rs/)
+* `swc` is written with Rust
+* SWC is sponsored by Vercel, primarily because of their integration into the ["Next Compiler"](https://nextjs.org/docs/advanced-features/compiler)
+* [kdy1](https://github.com/kdy1) is the primary core developer
 
-`swc` and `esbuild` are lower level than you're likely working on - configuring them directly is fine, and actually easier than Webpack, but you might not have to.
+### esbuild 
+* [`esbuild`](https://esbuild.github.io/) are the fast core tools
+* `esbuild` is written in Go
+* [Evan Wallace](https://github.com/evanw) is primary core developer 
+
+It's not unlikely that another core tooling option will come around.
+
+## React and friends
+
+It's a _React_ world out there. There are still other options though. [Svelte](https://svelte.dev/), [Solid](https://www.solidjs.com/), [Vue](https://vuejs.org/). We will not mention [Angular](https://angular.io/). [Alpine](https://alpinejs.dev/), [htmx](https://htmx.org/) and probably dozens more. Oh, plus [jQuery](https://jquery.com/).
+
+But I think it is safe to say, if you're reading this, you're likely going to use React by default.
 
 ## Modern React "Frameworks" for "Apps"
 
-The React ecosystem is the largest frontend "framework" developer ecosystem for "apps".
+The React ecosystem is the largest frontend "framework" developer ecosystem for "apps". 
 
 What is a "framework" and and what is an "app" anyway?
 
 ### Single Page Application (SPA)
 
-There's a lot of debate about single page apps right now. There are all sorts of reasons why an SPA might have poor performance, directly impacting user expereince. Slow connections, high latencies, huge bundles, slow first paints, the list goes on.
+There's a lot of debate about single page apps right now. With the advent of the "new" [react.dev](https://react.dev/) docs, and in particular [the "Start a New React Project" page](https://react.dev/learn/start-a-new-react-project), there's even more confusion and consternation about SPAs, MPAs and Hybrid apps.
 
-For the most part, for commodity back-of-house apps, like adminitistative portals, internal dashboards, and _apps_ are fine.
+There are all sorts of reasons why an SPA might have poor performance, directly impacting user expereince. Slow connections, high latencies, huge bundles, slow first paints, the list goes on.
 
-_And apps_!? Yes, if you're making the next Gmail class app, fine, go ahead, make it an SPA. It will probably be fine.
+For the most part, I think that for commodities _apps_ like adminitistative portals, back-of-house configuration management tools, back-office management tools, data dashboards, these _signle page apps_ are fine.
 
-When not to make it an SPA:
+Given that, I think there are situations and circumstances where a _Single Page App_ is not what you should reach for:
 
 * When you need your site and pages on Search Engine Result Pages (SERPs)
     * You'll never get an SPA properly decorated in on the SERPs and properly ranked; not enough content, not enough meta tag control, no matter what they tell you about Googlebot crawling SPAs
-    * If you're thinking about e-commerce at all, you can't use an SPA.
+    * If you're thinking about e-commerce at all, you cannot use an SPA
 * When the majority of your pages are full of static content
     * The two other scenarios cover this; server side rendering / hybrid apps, and static site generation
 * You need robust redirection
-* When you can't make portions of your frontend code effectively public
+* When you cannot make portions of your frontend code effectively public
     * This almost never happens; put special secret sauce business logic behind APIs where they belong and your treasure will stay software
 
 #### CRA
 
-[`create-react-app` is dead](https://twitter.com/dan_abramov/status/1565509314978119680).
+[`create-react-app` is dead](https://twitter.com/dan_abramov/status/1565509314978119680). [What will happen to `create-react-app`?](https://github.com/reactjs/reactjs.org/pull/5487#issuecomment-1409720741)
 
 #### Vite
 
-Vite is your best bet for an SPA. It's fast because it uses `esbuild` or optionally `swc` as of v4. Its community is thriving, its configuration out of the box is great, it supports TypeScript, it has a third of the dependencies of CRA.
+Vite is your best bet for an SPA. It is the alternative to `create-react-app`.
 
-I haven't ported an application from CRA to Vite yet, but aside from TypeScript and some other high level configuration, I can't think of anything in the actual application code that could break. In isolated new-project tests, Vite has been fast and reliable.
+It's fast because it uses `esbuild` or optionally `swc` as of v4. Its community is thriving, its configuration out of the box is great, it supports TypeScript, it has a third of the dependencies of CRA. There are some downsides of course. [Jest is wacky with ESM](https://jestjs.io/docs/ecmascript-modules), so [Vitest is a critical alternative testing tool](https://vitest.dev/), but the porting process is tedious although not laborious.
+
+I have not ported an application from CRA to Vite yet, but aside from TypeScript and some other high level configuration, I can't think of anything in the actual application code that could break if your previous CRA configuration was truly vanilla. Having gone through a few fresh Vite projects now, I am quite happy with it.
 
 #### Webpack
 
@@ -71,15 +98,17 @@ You're wrong. You do not.
 
 ### Server Side Rendered / Hybrid Apps
 
-Get your pages listed on SERPs! Get indexed today!
+In 2021, everyone's svelte friend Rich Harris presented [the talk "Have Single-Page Apps Ruined the Web? | Transitional Apps"](https://www.youtube.com/watch?v=860d8usGC0o&s=ryanmr.com). In this talk, Rich discribed the pros and cons of _Single Page Apps_ and _Multi-Page Apps_ and tried coining a new term called _Transitional Apps_. I think the term fell short of popular adoption. Usually I hear this class of _app_ as a _hyrbid app_. That's fine, but I feel like we had _hybrid apps_ for a long time, where we were doing funny tricks. This generation of _hybrid apps_ are much more integrated and perhaps deserve that new name now.
 
-Rolling your own [SSR with React today is not easy](https://www.bestbuy.com/?react). Sure, you can do it, but it will be so customized, unrepeatable and unknowable. This is a [Dunning Kruger](https://en.wikipedia.org/wiki/Dunning%E2%80%93Kruger_effect) decision. If you're asking if you _should_ build your own framework, the answer is no. If you're asking if you _should_ build your own framework because you have expereince with their deficiencies and have explored many available options, then perhaps.
+> Get your pages listed on SERPs! Get indexed today!
+
+Rolling your own [SSR with React today is not easy](https://www.bestbuy.com/?s=ryanmr.com). Sure, you can do it, but it will be so customized, unrepeatable and unknowable. This is a [Dunning Kruger](https://en.wikipedia.org/wiki/Dunning%E2%80%93Kruger_effect) decision. If you're asking if you _should_ build your own framework that straddles server side and client side, the answer is no. If you're asking if you _should_ build your own framework because you have expereince with their deficiencies, have articulated needs for their affordances and have explored many available options, then perhaps.
 
 #### Next
 
-Next and Remix are the options here today.
+Next and Remix are the ~~transitional~~ _hybrid_ options here today.
 
-Next has been around for a while. It has some quirks, most of them obligations of its hybrid nature.
+Next has been around for a while. It has some quirks, most of them obligations of its ~~transitional~~ _hybrid_ nature. Not all of these quirks are bad, but they're things to think about, and things to be unfamiliar with if you have only worked on JSPs or CRAs (one of these is not like the other, almost by definition).
 
 * routing is based on the filesystem route
 * components are not colocated with their pages
@@ -89,19 +118,27 @@ Next has been around for a while. It has some quirks, most of them obligations o
 * middleware gets a funny runtime
 * middleware gets weird behind a cdn
 
+These quirks may change or disappear with [the upcoming App Router](https://beta.nextjs.org/docs/app-directory-roadmap) from Next. This new mode also [enables React Server Components (RSC)](https://react.dev/blog/2020/12/21/data-fetching-with-react-server-components) with [Next 13](https://nextjs.org/docs/advanced-features/react-18/server-components) in the `app/` directory.
+
 The internals of Next are solid. It runs `swc` under its hood, so its _fast enough_. If you need some prerendered pages, some server side rendered pages (on demand) and some SPA-like functionality, then Next is great.
 
-My hestiation is not the technology necesarily, it's on the use case. The split between _hybrid_ and _spa_ are still pertinent. Next gives you _great powers_, but with great powers comes great responsbility, and in this case, new downsides to balance in your compromise. Do you really _need_ your pages indexed? Do you have a centralized data source (instead of distributed)? Do you really have developers that are ready to solve entirely new types of problems that come up with state shared between the server, the edge and the browser?
+My hestiation is not the technology necesarily, it's on the use case. The split between _hybrid_ and _spa_ are still pertinent. Next gives you _great powers_, but with great powers comes great responsbility, and in this case, new downsides to balance in your compromise.
+
+* 🙉 Do you really _need_ your pages indexed? Not really, especially if they're locked behind corporate firewalls or are entirely authenticated experienced.
+* 🙈 Do you have a centralized data source (instead of distributed)? With data centralization, running at the edge will not be a major latency improvement.
+* 🙊 Do you really have developers that are ready to solve entirely new types of problems that come up with state shared between the server, the edge and the browser? You might, you might not. But it's not free.
 
 #### Remix
 
 Other than Next, there's Remix.
 
-Remix is still on the watch list. [Hydrogen](https://hydrogen.shopify.dev/roadmap/) is sort of Remix too, and [Remix joined Shopify](https://shopify.engineering/remix-joins-shopify). I think the tooling demos well in videos, but have not spent the time to try it and tinker with it. Let's wait another six months and see where things land.
+Remix is still on my watch list. [Hydrogen](https://hydrogen.shopify.dev/roadmap/) is sort of Remix too, and [Remix joined Shopify](https://shopify.engineering/remix-joins-shopify). I think the tooling demos well in videos, but have not spent the time to try it and tinker with it. Let's wait another six months and see where things land.
+
+This cannot be all there is. All of these tools are tool complex for their own good.
 
 ### Static Site Generated
 
-Brochure-ware at its finest.
+Brochure-ware at its finest. Or maybe a relatively stable marketing page?
 
 If you have markdown, or some realtively narrow set of pages with data sourced from an API, static site generation works. This can break down when you need interactive editing (for that go back to Next), or when you have so many pages rebuilding them is wasteful.
 
@@ -109,18 +146,21 @@ If you have markdown, or some realtively narrow set of pages with data sourced f
     * the GraphQL model is too much work
     * the mix of esm and cjs files is weird
     * the deployment tech is optimized only for their first party deployment service
+    * 🤔 it is recommended in [the new react.dev "Start a New React Project" docs](https://react.dev/learn/start-a-new-react-project#gatsby), surprisingly
 * 🟢 Tentatively Recommended: Astro: it works with everything, even React!
+    * `.astro` files use jsx syntax, but _act_ more like one of those new _React Server Components_ in that they only render HTML at the end, and bring no additional JavaScript payload down
     * seriously, incredible work was done to ensure interop between React, Vue and others
+    * _react_ usage would bring in the react bundle, but its on demand and situational
     * uses `vite` under its hood, which in turn uses `esbuild` under its hood; new tools all the way down
     * successor development team to snowpack; well, hopefully it does better than that
     * island architecture is awesome; only load if it's in the viewport and only this small chunk is impacted
     * you can even use plain js, with the bundler, and modern tooling, and packages... _no framework at all_
 * ✅ Recommended: Next: it works with everything, including static sites!
-    * [my card site](https://card.ryanrampersad.com/?blog) is built with next and uses no SSR features
-    * next is familiar enough to me that I jump into without reviewing a bunch of code or docs each time
+    * [My annual card site](https://card.ryanrampersad.com/?blog) is built with Next and uses no SSR features
     * Next shines in this regard when coupled with its parent Vercel service or a similar edge provider
+    * [Static exports](https://nextjs.org/docs/advanced-features/static-html-export) are available for a truly S3 class experience
 
-### React flavored State Management
+## React flavored State Management
 
 [Redux](https://redux.js.org/) is a lot. [Sagas are too much](https://redux-saga.js.org/). [Redux Toolkit makes it better](https://redux-toolkit.js.org/), but it is still a lot.
 
@@ -128,7 +168,7 @@ Maybe you don't need a service bus on the frontend.
 
 Consider:
 
-#### Tree-Local-State
+### Tree-Local-State
 
 Components might have state, subtrees might have state, and your entire app might have state.
 
@@ -138,11 +178,11 @@ For subtree, or what I've liked calling, _tree-local-state_, you can do a lot wi
 * Context is _fine_ if you use it as a read/write 80/20 store; auth states _might_ be fine in a Context as long as you read and you don't write ever again
 * _Really_ consider Context as an escape hatch for props drilling
 
-#### Server & Client Shared State
+### Server & Client Shared State
 
 [`react-query`](https://tanstack.com/query/latest/docs/react/overview) is usually more than enough for fetching server side state. It provides for a great developer experience, and lends itself out of the box to a pretty decent user expereince too.
 
-#### Complex State 
+### Complex State 
 
 [`zustand`](https://github.com/pmndrs/zustand) is a great option for more complex state, SPA-style cross page data propagation use cases
 
@@ -152,7 +192,7 @@ For subtree, or what I've liked calling, _tree-local-state_, you can do a lot wi
 
 If you have extraordinarily complex state, [Redux with Redux Toolkit](https://redux-toolkit.js.org/) has its place.
 
-#### Offline
+### Offline
 
 A few years ago, I was involved with multiple projects that _insisted_ client side state persistence for offline support. Despite all these years of development and industrial growth, I still think offline webapps are a very poor experience. Users have no idea what's going on. Engineers barely have any better tools to make it a decent experience. In general, if _offline_ is where your _web_ app will be used, give all that [PWA business a try](https://www.google.com/search?q=pwa) and enjoy the [fruitless pursuit of the perfect `sw.js`](https://www.google.com/search?q=sw.js), but also seriously consider a real app or being dependent on generally available Internet access.
 
@@ -205,6 +245,10 @@ Well, why not..
     * Too much taken out of the box unfortunately
 
 In the end, if you [use express, with typescript, with swc](https://github.com/ryanmr/swc-express-template), I think you have a winning combination to explore your ideas and grow your team. Then you can port that into or Go or Rust or whatever. That will be fine.
+
+### Non-JavaScript backends
+
+I think JavaScript earns a rightful place in your backend stack, but only up to some threshold. It is not perfect by any means. If your team has more familiarity with another stack, consider that. But know that the vision of "backend for frontend" persist and it is coming sooner than later.
 
 ## Package Managers
 
