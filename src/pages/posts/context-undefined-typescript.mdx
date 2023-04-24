@@ -6,7 +6,7 @@ updatedDates: []
 layout: ../../layouts/BlogPost.astro
 ---
 
-The [react docs were somewhat sparse on context](https://reactjs.org/docs/context.html). The [beta does offers slightly more context](https://beta.reactjs.org/learn/passing-data-deeply-with-context), but there are some patterns with the broader ecosyste (TypeScript) still missing.
+The [react docs were somewhat sparse on context](https://reactjs.org/docs/context.html). The [beta does offers slightly more context on context](https://beta.reactjs.org/learn/passing-data-deeply-with-context), but there are some patterns with the broader ecosystem (TypeScript) still missing.
 
 Let's not think about whether or not the following situation is suited for context or another state management approach. Let's just believe context is fine for now.
 
@@ -50,7 +50,7 @@ With TypeScript in the mix here it is longer than it is with plain JavaScript, b
 1. an interface representing a cart item
 2. an interface representing the actual content of the context
 3. the react created `CartContext`
-  * notice that it is typed: `CartCtx | undefined` because _must_ give it an initial value
+    * notice that it is typed: `CartCtx | undefined` because _must_ give it an initial value
 4. an interface for the provider component (using `PropsWithChildren`)
 5. a functional component storing state, and providing state and functions via provider `value`
 
