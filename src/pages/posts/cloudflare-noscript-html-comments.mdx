@@ -1,0 +1,39 @@
+---
+title: "Cloudflare: stop removing html comments"
+description: "Keep your ascii art banners where they belong"
+publishDate: "22 June 2023"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+I recommend an [ASCII Art](https://en.wikipedia.org/wiki/ASCII_art) [banner](https://patorjk.com/software/taag/#p=display&f=Small&t=ryanmr) for any tentpole product. It's a beautiful homage to a prehistoric time in technology that's easily forgotten. It's just a few bytes that buys you the indulgence that only technical whimsy can afford.
+
+Anyway, you know what can stop this whole scheme in its tracks? Cloudflare's overeager HTML optimization. Normally HTML comments are useless, but it does turn out they've been used in... _hacky_ use cases, among others. HTML comments for ASCII Art isn't so much a hack but perhaps using comments for SSR hydration boundries is.
+
+How can we stop Cloudflare from stripping out HTML comments? In theory, there might be a switch somewhere in the Cloudflare control panel. You might not have access to the control panel thoguh so sometimes it's better to handle it on the code side.
+
+Here's how I approached the issue:
+
+```html
+<!--                               
+  _ _ _  _ __ _ _ _  _ __  _ _ 
+ | '_| || / _` | ' \| '  \| '_|
+ |_|  \_, \__,_|_||_|_|_|_|_|  
+      |__/                     
+-->
+```
+
+Apparently Cloudflare will pull this right out. Here's the secret. Surround this block with a `<noscript>` tag.
+
+```html
+<noscript>
+  <!--                               
+    _ _ _  _ __ _ _ _  _ __  _ _ 
+  | '_| || / _` | ' \| '  \| '_|
+  |_|  \_, \__,_|_||_|_|_|_|_|  
+        |__/                     
+  -->
+</noscript>
+```
+
+I haev tested this with what I think is a generic Cloudflare configuration, and I tested it out with an old school EJS deployment, a more modern Next SSR deployment and a Vite Static HTML file deployment.
