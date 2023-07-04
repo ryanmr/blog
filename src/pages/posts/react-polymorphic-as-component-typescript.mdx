@@ -1,0 +1,59 @@
+---
+title: "React: polymorphic comoonents with the as prop with TypeScript"
+description: "It's a button, it's an airplane, it's polymorphism"
+publishDate: "4 Jul 2023"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+Do you want a `Button` that can switch between `<button>`, `<a>` and `<Link>`? You need a _polymorphic component_. Ideally you need one with TypeScript support so that you get type safety and autocomplete.
+
+Using an `as` or `component` prop is not too difficult in plain JavaScript flavored React code.
+
+```JavaScript
+export function Button({as, children}) {
+    const Component = as || 'button';
+    return <Component>{children}</Component>
+}
+```
+
+
+I was not able to find a first party example of how to make a polymorphic component. With the new [new react.dev docs](https://react.dev/blog/2023/03/16/introducing-react-dev#whats-next), hopefully this should all be easier and better documented.
+
+Here's how I handle this, based on [this original Stackoverflow post by Gabin](https://stackoverflow.com/a/66568474/2496685), with a few minor modifications.
+
+```TypeScript
+interface ButtonProps<T extends React.ElementType> extends React.PropsWithChildren {
+  /**
+   * polymorphic prop; supply overriding html element or react component
+   */
+  as?: T;
+}
+
+function Button<T extends React.ElementType = "button">({
+  as,
+  ...props
+}:
+  ButtonProps<T>
+  & Omit<React.ComponentPropsWithoutRef<T>, keyof ButtonProps<T>>
+) {
+  const Component = as ?? "button";
+  return <Component {...props} />;
+}
+```
+
+Now the `Button` can be flip flopped from `<button>` to `<a>` or even `<Link>` and the appropriate props will be required or optional as necessary.
+
+```TypeScript
+function Example() {
+  return (
+    <>
+      <Button>button as a button</Button>
+      <Button as="a" href="/">button as an anchor</Button>
+      <Button as={Link} to="/">button as a Link</Button>
+    </>
+  );
+}
+```
+
+Next up, combining [this approach with cva](https://github.com/joe-bell/cva).
