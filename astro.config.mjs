@@ -31,7 +31,7 @@ export default defineConfig({
 
     // inlines critical css
     // as a better alternative to build.inlineStylesheets='auto'
-    critters(),
+    // critters(),
   ],
 
   //
