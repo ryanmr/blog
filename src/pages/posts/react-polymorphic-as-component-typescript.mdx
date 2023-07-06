@@ -10,7 +10,7 @@ Do you want a `Button` that can switch between `<button>`, `<a>` and `<Link>`? Y
 
 Using an `as` or `component` prop is not too difficult in plain JavaScript flavored React code.
 
-```JavaScript
+```js
 export function Button({as, children}) {
     const Component = as || 'button';
     return <Component>{children}</Component>
@@ -22,7 +22,7 @@ I was not able to find a first party example of how to make a polymorphic compon
 
 Here's how I handle this, based on [this original Stackoverflow post by Gabin](https://stackoverflow.com/a/66568474/2496685), with a few minor modifications.
 
-```TypeScript
+```ts
 interface ButtonProps<T extends React.ElementType> extends React.PropsWithChildren {
   /**
    * polymorphic prop; supply overriding html element or react component
@@ -44,7 +44,7 @@ function Button<T extends React.ElementType = "button">({
 
 Now the `Button` can be flip flopped from `<button>` to `<a>` or even `<Link>` and the appropriate props will be required or optional as necessary.
 
-```TypeScript
+```ts
 function Example() {
   return (
     <>
