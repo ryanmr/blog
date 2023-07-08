@@ -2,7 +2,7 @@
 title: "JavaScript Webtech"
 description: "The Good, Bad and the Maybe"
 publishDate: "2 Sep 2022"
-updatedDates: ["18 Mar 2023", "20 Jan 2023"]
+updatedDates: ["8 July 2023", "18 Mar 2023", "20 Jan 2023"]
 layout: "../../layouts/BlogPost.astro"
 ---
 
@@ -51,7 +51,35 @@ It's not unlikely that another core tooling option will come around.
 
 It's a _React_ world out there. There are still other options though. [Svelte](https://svelte.dev/), [Solid](https://www.solidjs.com/), [Vue](https://vuejs.org/). We will not mention [Angular](https://angular.io/). [Alpine](https://alpinejs.dev/), [htmx](https://htmx.org/) and probably dozens more. Oh, plus [jQuery](https://jquery.com/).
 
-But I think it is safe to say, if you're reading this, you're likely going to use React by default.
+If you're reading this, you're likely going to use React by default.
+
+**But, what about the others?**
+
+* Angular
+    * allegedly _enterprises_ use Angular but luckly I do not work in such an _enterprise_
+* Svelte
+    * I saw first hand a project repeatedly upgrade through version 1, 2 and then 3, not quite smooth, not quite a blocker; certainly less painful than AngularJS to Angular 2
+* Solid
+    * I like that it keeps JSX around, being one of the strongest points of React
+    * I like that it optimizes renders by not just re-rendering on every rolling and cascading state change
+    * I think the hardest aspect of Solid today is, well, its ecosystem is small
+* Preact
+    * Everyone loves to tell me about awesome it is that "you know this is so basic we could use Preact instead" but then you want to do one additional realisitic thing poof, the more Preact
+    * Preact appears from the outside to be 80% compatible, which in userland, gets you far enough, but pulling in libraries that use more complex React flavored internals, well, you might end up out of luck
+* Vue
+    * I worked with Vue 2 extensively in the 2017-2018 era, prior to React's hooks implementation
+    * At the time, I liked Vue, but I increasingly disliked _Single File Components_ (SFCs) and found the allure of "it's just another function in the same file" that React offered (class Components for statefulness, functional components that were pure for everything else)
+
+
+There are dozens of these things. Honestly, I do not know all of them. PRs welcome.
+
+React gets my pick today because...
+
+* it's incredibly popular
+* it's in demand
+* it has a huge practioner base
+* it has a wide, fairly thriving ecosystem
+* the middle 80% React is conceptually fine, while the outlying edges can be a bit rough
 
 ## Modern React "Frameworks" for "Apps"
 
@@ -90,6 +118,8 @@ It's fast because it uses `esbuild` or optionally `swc` as of v4. Its community 
 
 I have not ported an application from CRA to Vite yet, but aside from TypeScript and some other high level configuration, I can't think of anything in the actual application code that could break if your previous CRA configuration was truly vanilla. Having gone through a few fresh Vite projects now, I am quite happy with it.
 
+Here's a curiosity though: the new [react.dev installation guide](https://react.dev/learn/start-a-new-react-project#can-i-use-react-without-a-framework) goes _deep_ into framework-ful frameworks. It mysteriously burries what would have been the nearest viable alternative to create-react-app in a secondary section. Now, below I also go _deep_ into these hybrid apps but I think it is irresponsible to discard over ten years of momentum when your 2018-era feature set has just been documented.
+
 #### Webpack
 
 You might say: "hey, I have such special needs that I must have a customized webpack option."
@@ -122,19 +152,21 @@ These quirks may change or disappear with [the upcoming App Router](https://beta
 
 The internals of Next are solid. It runs `swc` under its hood, so its _fast enough_. If you need some prerendered pages, some server side rendered pages (on demand) and some SPA-like functionality, then Next is great.
 
-My hestiation is not the technology necesarily, it's on the use case. The split between _hybrid_ and _spa_ are still pertinent. Next gives you _great powers_, but with great powers comes great responsbility, and in this case, new downsides to balance in your compromise.
+My hestiation is split between "can-my-team-figure-it-out" and the use case. The split between _hybrid_ and _spa_ are still pertinent. Next gives you _great powers_, but with great powers comes great responsbility, and in this case, new downsides to balance in your compromise.
 
 * 🙉 Do you really _need_ your pages indexed? Not really, especially if they're locked behind corporate firewalls or are entirely authenticated experienced.
 * 🙈 Do you have a centralized data source (instead of distributed)? With data centralization, running at the edge will not be a major latency improvement.
-* 🙊 Do you really have developers that are ready to solve entirely new types of problems that come up with state shared between the server, the edge and the browser? You might, you might not. But it's not free.
+* 🙊 Do you really have developers that are ready to solve entirely new types of problems that come up with state shared between the server, the edge and the browser? You might, you might not. But it's not free. It's bizarre to question my teams if they can use Next or not. Sure, of course they can. But they have had 6 years of full time create-react-app flavored development It's just tough to justify.
+
+In 2023, being a [react.dev installation guide](https://react.dev/learn/start-a-new-react-project#nextjs) framework suggestion, surely Next is best? Well, _React Server Components_ came around at the same time as the Next 13.4 release, and along with that, the official recommendation that Next is _the framework_ for React. Now there's this dichotomy between _React Server Components_ (RSC) and Client Components, and a whole new world of integration and mindshare interia to overcome because of this flip flop. Finally, there is [documented discourse](https://news.ycombinator.com/item?id=36607487) and [decided displeasure](https://phryneas.de/react-server-components-controversy) for having for RSC. It all still feels very _beta_ to me (like the classical definition of beta, released, but unstable). I spent an hour one afternoon tinkering with RSCs but left it at that. It's not ready and I am not ready.
 
 #### Remix
 
 Other than Next, there's Remix.
 
-Remix is still on my watch list. [Hydrogen](https://hydrogen.shopify.dev/roadmap/) is sort of Remix too, and [Remix joined Shopify](https://shopify.engineering/remix-joins-shopify). I think the tooling demos well in videos, but have not spent the time to try it and tinker with it. Let's wait another six months and see where things land.
+Remix is still on my watch list. [Hydrogen](https://hydrogen.shopify.dev/roadmap/) is sort of Remix too, and [Remix joined Shopify](https://shopify.engineering/remix-joins-shopify). I think the tooling demos well in videos, but have not spent the deeply dedicated time to try it and tinker with it. Let's wait another six months and see where things land.
 
-This cannot be all there is. All of these tools are tool complex for their own good.
+This cannot be all there is. All of these tools are too complex for their own good. Please save us from ourselves.
 
 ### Static Site Generated
 
@@ -155,10 +187,10 @@ If you have markdown, or some realtively narrow set of pages with data sourced f
     * successor development team to snowpack; well, hopefully it does better than that
     * island architecture is awesome; only load if it's in the viewport and only this small chunk is impacted
     * you can even use plain js, with the bundler, and modern tooling, and packages... _no framework at all_
-* ✅ Recommended: Next: it works with everything, including static sites!
+* ✅ Cautiously Recommended: Next: it works with everything, including static sites!
     * [My annual card site](https://card.ryanrampersad.com/?blog) is built with Next and uses no SSR features
     * Next shines in this regard when coupled with its parent Vercel service or a similar edge provider
-    * [Static exports](https://nextjs.org/docs/advanced-features/static-html-export) are available for a truly S3 class experience
+    * [Static exports](https://nextjs.org/docs/advanced-features/static-html-export) are available for a truly S3 class experience; _but_ and there's always a _but_, I think Next is slowly shaking this capability out of the framework having adopted this server centric approach
 
 ## React flavored State Management
 
@@ -180,7 +212,7 @@ For subtree, or what I've liked calling, _tree-local-state_, you can do a lot wi
 
 ### Server & Client Shared State
 
-[`react-query`](https://tanstack.com/query/latest/docs/react/overview) is usually more than enough for fetching server side state. It provides for a great developer experience, and lends itself out of the box to a pretty decent user expereince too.
+[`react-query`](https://tanstack.com/query/latest/docs/react/overview) is usually more than enough for fetching server side state. It provides for a great developer experience, and lends itself out of the box to a pretty decent user expereince too. I can't recommend React Query enough.
 
 ### Complex State 
 
@@ -190,11 +222,15 @@ For subtree, or what I've liked calling, _tree-local-state_, you can do a lot wi
 * you should justify the bundle size impact
 * read more about [zustand: a middleground](/posts/zustand-a-middleground)
 
-If you have extraordinarily complex state, [Redux with Redux Toolkit](https://redux-toolkit.js.org/) has its place.
+Like ice cream, there are plenty of state management flavors in this space. In addition to zustand, [jotai](https://github.com/pmndrs/jotai) and [valtio](https://github.com/pmndrs/valtio) are both popular too.
+
+🍌 If you have extraordinarily complex state, [Redux with Redux Toolkit](https://redux-toolkit.js.org/) has its place. It's a slippery slope and once you go down this route and will have a hard time coming back. React accordingly.
 
 ### Offline
 
 A few years ago, I was involved with multiple projects that _insisted_ client side state persistence for offline support. Despite all these years of development and industrial growth, I still think offline webapps are a very poor experience. Users have no idea what's going on. Engineers barely have any better tools to make it a decent experience. In general, if _offline_ is where your _web_ app will be used, give all that [PWA business a try](https://www.google.com/search?q=pwa) and enjoy the [fruitless pursuit of the perfect `sw.js`](https://www.google.com/search?q=sw.js), but also seriously consider a real app or being dependent on generally available Internet access.
+
+In this rare situations, I have reached for [redux-offline](https://github.com/redux-offline/redux-offline) but surely there's something better now. Like building a real native app.
 
 ## Server Side / API
 
@@ -250,6 +286,15 @@ In the end, if you [use express, with typescript, with swc](https://github.com/r
 
 I think JavaScript earns a rightful place in your backend stack, but only up to some threshold. It is not perfect by any means. If your team has more familiarity with another stack, consider that. But know that the vision of "backend for frontend" persist and it is coming sooner than later.
 
+* Go
+    * Only recent have I become re-interested in Go, partly because I needed to write non-Node code for a project, and also for it to align with an already existing Node code suite and a team that writes primarily in Go
+    * It's very fast, it's all very literal, it's all very non-DRY (which is surprisingly a feature now)
+    * It still feels like I am writing BASIC in Python upside down because of the lack of filter/map/reduce features languages (even Java...) have had for years
+* Java 
+    * Ok, I know what you are thinking, and surely I cannot be serious
+    * Java 17 is actually capable of providing a modern language feature set, even richer, than dare I say, Go?
+    * Spring Boot might not be everyone's favorite but it is really quite a good target for long term software since _someone will know something about it_ (which is the same argument used for React above)
+
 ## Package Managers
 
 * `npm` has a legacy of poor performance, lagging feature sets and not being `yarn`
@@ -259,7 +304,11 @@ I think JavaScript earns a rightful place in your backend stack, but only up to 
 
 In many ways, `npm` vs `yarn` is like `maven` vs `gradle`, everyone picks `gradle` but `maven` hosts the registry and works as a tool OK too.
 
-For now I recommend `yarn`, and while I have tested `berry` I have not properly field tested it against real codebases.
+For now I recommend `yarn` but unfortunately everyday it marches closer to unusable's door.
+
+* `npm` almost has feature parity now with `yarn`, with `overrides` but there's still rough edges
+* `pnpm` is probably the successor we all want and need to `yarn` and not `berry`, but because it does not come pre-bundled in the baseline node docker images, I refuse to recommend it at this time
+    * plus, it would yet another tool for my already "frontend" exhausted teams to know
 
 ## Validation
 
@@ -283,10 +332,46 @@ Schema validation is not the same as business logic validation. For example, if 
 
 For now, I recommend zod.
 
-## `fetch` and friends
+## XMLHttpRequest, XHR, fetch
 
 For hybrid apps (with Next), I recommend `fetch`. Out of the box, Next will provide `fetch` in its middleware and server side. `fetch` will work in the browser on the frontend. `fetch` is great and all, though the developer experience is not always so productive. Consider building your own middleware and your own intermediate API layer to handle common situations and oddities.
 
-For an SPA, I recommend [axios](https://axios-http.com). Axios has been a go to library for years. Likewise, for many years it felt like it was abandoned, languishing in a 0.x version. Now that it is 1.x, I feel better about it. I hope a 2.x variant comes around with `fetch` internals.
+For an SPA, I recommend [axios](https://axios-http.com). Axios has been a go to library for years. Likewise, for many years it felt like it was abandoned, languishing in a 0.x version. Now that it is 1.x, I feel better about it. I hope a 2.x variant comes around with `fetch` internals, now that browsers and even node have widely implemented fetch.
+
+There are plenty of `fetch` shims for older browsers or older versions of node too. Like my favorite, [make-fetch-happen](https://www.npmjs.com/package/make-fetch-happen).
 
 [`got`](https://www.npmjs.com/package/got) and [ky](https://github.com/sindresorhus/ky) might be awesome. However, part of the ecosystem is locked out of using their latest versions because of ESM incompatability.
+
+## Form management
+
+Back in my Vue days, I used [VeeValidate](https://vee-validate.logaretm.com/v4/). We were going into a project using React Native though, so no more VeeValidate. But how could I make form validation simple and smooth just like that? In Class-based React code? I did some hacking over winter break and I came up with some kludges but nothing substantial. Good thing too. I found [Formik](https://formik.org/) shortly thereafter.
+
+Forms are _the_ worst part of any webapp.
+
+* 🟢 [react-hook-form](https://react-hook-form.com/)
+    * by default, using _uncontrolled_ inputs, react hook form manages to do all the useful form management things and keep performance much higher because the component tree isn't always re-rendering
+    * react-hook-form also has escape hatches for controlled inputs, letting you create synthetic form inputs as you need (like, for example, a non-native date picker)
+* 🟠 [Formik](https://formik.org/)
+    * I haven't used Formik in a while but I think it's still widely used and most likely fine for the majority of Forms
+
+## UI libraries
+
+You knew this was coming.
+
+Tailwind is the only UI library you need. Then you need creativity and time.
+
+* 🟠 Tailwind
+    * What, putting an orange caution circle on my own recommendation? Who's better to provide constructive criticism?
+    * Pros:
+        * _atom_ design at its finest
+        * co-locates styles and markup structure _and_ presentation logic together
+        * makes [AHA style](https://kentcdodds.com/blog/aha-programming) programming easy (neither, DRY, nor WET; _"prefer duplication over the wrong abstraction"_ or _"Optimize for change first"_)
+    * The first major _con_, if you call it that, is that its still difficult to package and distribute components styled with Tailwind to other projects
+    * The second minor _con_, if you call it that, is that paired with React and TypeScript, when you do need to make an abstraction, there's been little guidance on how to actually do this in a safe and sane way. Perhaps [with some more practice](/posts/react-polymorphic-as-component-typescript), this will get easier, and hopefully a [first party adoption of tailwind-merge](https://www.npmjs.com/package/tailwind-merge)
+    * The third patch _con_, if you call it that, is that Tailwind requires a mindset shift if you're used to something else. I've been on the receiving end of disdain for liking and using Tailwind. It's come up [time and time again on Hacker News](https://hn.algolia.com/?dateRange=pastYear&page=0&prefix=true&query=Tailwind&sort=byPopularity&type=story), always entertaining either way. Give it a try.
+* 🙅‍♂️ MUI
+    * If you don't like MUI out of the box and do not want to use it exactly it comes out of the box, maybe barring some basic color changes, then... do not use MUI
+    * It is clunky beyond belief, born in a time before flex and grid became _standard_
+    * It is clunky beyond belief, born in a time before TypeScript was effectively required in and library toolkit
+
+There are others in this space, and they may fall somewhere between Tailwind and MUI.    
