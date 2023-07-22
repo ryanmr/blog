@@ -1,0 +1,24 @@
+---
+title: "Rename winston log level field"
+description: "What is the datadog doing?"
+publishDate: "21 Jul 2023"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+If you use [Winston](https://www.npmjs.com/package/winston) and [Datadog](https://www.datadoghq.com/), you are probably logging `level` when you [emit JSON structured logs](https://www.google.com/search?q=why+use+json+structured+logs). You can configure Datadog to respect level, but sometimes its nice to use its defaults instead.
+
+Datadog uses `severity` as an equivalent to `level`. Here's how you can config the field name of `level` to just use `severity` instead.
+
+```js
+  const jsonFormat = winston.format.combine(
+    winston.format((info) => {
+      info["severity"] = info.level;
+      delete info.level;
+      return info;
+    })(),
+    winston.format.json()
+  );
+```
+
+Here, we are setting `info["severity"]` to whatever the `level` would have been. Then right after, we remove the `level` from the info object.
