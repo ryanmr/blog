@@ -1,0 +1,36 @@
+---
+title: "Cypress: replace env in config: ${TOKEN}"
+description: "What is this mysterious token?"
+publishDate: "5 Aug 2023"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+Have you been running your [Cypress tests](https://www.cypress.io/) in your automated test runner? Have you suddenly come across this seemingly strange error?
+
+```
+$ export CYPRESS_BASE_URL="http://localhost:3000"
+$ yarn cypress run
+yarn run v1.22.19
+error An unexpected error occurred: "Failed to replace env in config: ${TOKEN}".
+info If you think this is a bug, please open a bug report with the information provided in ".../yarn-error.log".
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
+```
+
+I searched by codebase for any usage of a plain `TOKEN` variable but I found nothing. I have token tokens in my automated test runner but those are for pulling packages, pushing packages and authorizing deployment actions. Nothing related to Cypress or otherwise.
+
+The trick I found for this is: make a stubbed `TOKEN` value.
+
+```diff
+    step:
+        name: cypress
+        image: cypress:latest
+        commands:
+            - export CYPRESS_BASE_URL="http://localhost:3000"
++           - export TOKEN=""
+            - yarn cypress run
+```
+
+I am not sure if this `TOKEN` issue is exclusive to my automated test runner, there were many hits online for a similar problem. Meanwhile, this seems to work well enough so I am not investigating further into the internals of Cypress or my runner.
+
+Then only after that were `✔  All specs passed!`.
