@@ -1,0 +1,66 @@
+---
+title: "Resize with imagemagick and optimize with optipng"
+description: "Save space and bandwidth"
+publishDate: "Aug 8 2023"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+I love embedding screenshots into repositories. It gives visual context for the codebase without needing to get it up and running, or context-switching away to begin the token acquisition process. Of course, just a hand full of screenshots can really add up. Modern MacBook Pro resolutions could yield screenshots at `3680 × 2382`. That's huge. Also likely unnecessary.
+
+Instead, what if we trim these down maintaining resolution and optimize them a bunch? With a script? Like a robot?
+
+Grab imagemagick:
+
+```bash
+brew install imagemagick
+```
+
+Grab optipng:
+
+```bash
+brew install optipng
+```
+
+Brew can take a while, might as well go for a walk now.
+
+One walk later and we're back.
+
+Usually my screenshots hide out on the desktop. I prefer using Finder to pick screenshots and put them in a nice clean folder.
+
+Here's the command:
+
+```bash
+mogrify -path out -resize 75%x75% in/*.png
+```
+
+It will take an `in` folder full of png files and resize them to 75% of their original width and heights. You can tinker with the percentages depending on your needs. I thought 50% was a bit too blurry for my docs, but might be fine for your docs.
+
+That alone trims out a lot of filesize, but there's more to optimize with _optipng_.
+
+Here's the command:
+
+```bash
+find input_folder -name "*.png" -exec optipng -o7 {} \;
+```
+
+Using `find` to run this on multiple files (since optipng doesn't have built-in multiple input handling), this will optimize your resized files.
+
+```
+** Processing: out2/image-006.png
+2760x1787 pixels, 4x8 bits/pixel, RGB+alpha
+Input IDAT size = 259520 bytes
+Input file size = 259892 bytes
+
+Trying:
+  zc = 9  zm = 9  zs = 0  f = 2		IDAT size = 250095
+  zc = 9  zm = 8  zs = 0  f = 2		IDAT size = 249198
+
+Selecting parameters:
+  zc = 9  zm = 8  zs = 0  f = 2		IDAT size = 249198
+
+Output IDAT size = 249198 bytes (10322 bytes decrease)
+Output file size = 249486 bytes (10406 bytes = 4.00% decrease)
+```
+
+_optipng_ really brute forces various png settings in order to get the best filesize. It takes a while because of that. Sometimes savings aren't huge but sometimes you're getting back 25% of that size.
