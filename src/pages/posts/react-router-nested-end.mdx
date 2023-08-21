@@ -1,0 +1,71 @@
+---
+title: "React Router NavLink with end prop"
+description: "Solving simultaneous index and subroutes being active"
+publishDate: "20 Aug 2023"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+Recently, I had a tab structure that used React Router v6 to drive the actual routes with [createBrowserRouter](https://reactrouter.com/en/main/routers/create-browser-router) and [Outlet](https://reactrouter.com/en/main/components/outlet).
+
+The team behind React Router tends to revert to their previous implementation style every other version or so. We'll see if that remains true over time in the v6-era.
+
+The new function [createBrowserRouter](https://reactrouter.com/en/main/routers/create-browser-router) can be a little wonky when it gets nested, or at least it feels that way.
+
+Here's the part of my router that handles the tab routes. I have a top level route and various children. There's a default and non-index children you can tab to. _Build_ is default, then _Services_ and _Pipeline_ are parallel routes.
+
+```js
+              {
+                path: "/:org/:repo/:number",
+                element: <RepoBuild />,
+                children: [
+                  {
+                    element: <RepoBuildSteps />,
+                    index: true,
+                  },
+                  {
+                    path: "/:org/:repo/:number/services",
+                    element: <ComingSoon title="Services" />,
+                  },
+                  {
+                    path: "/:org/:repo/:number/pipeline",
+                    element: <ComingSoon title="Pipeline" />,
+                  },
+                ],
+              },
+```
+
+This is a small set of components 
+
+```jsx
+        <TabsContainer>
+          <li>
+            <NavLink
+              to={`/${org}/${repo}/${number}`}
+              className={getTabNavLinkCls()}
+            >
+              Build
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to={`/${org}/${repo}/${number}/services`}
+              className={getTabNavLinkCls()}
+            >
+              Service
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to={`/${org}/${repo}/${number}/pipeline`}
+              className={getTabNavLinkCls()}
+            >
+              Pipeline
+            </NavLink>
+          </li>
+        </TabsContainer>
+```
+
+The problem I had was that NavLink was being too greedy. Whenever I was on the _Services_ tab for example, `/org/repo/123/services`, it would also light up the _Build_ tab. I needed those to be actively exclusively, the `index` was a default, but not a parent.
+
+In the end, the trick was to use the [end prop provided by NavLink](https://reactrouter.com/en/main/components/nav-link#end).
