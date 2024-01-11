@@ -1,0 +1,58 @@
+---
+title: "JSON In Your Shell With Heredoc"
+description: "Double Quotes Be Silent"
+publishDate: "10 Jan 2024"
+updatedDates: []
+layout: ../../layouts/BlogPost.astro
+---
+
+Have you ever needed JSON in a shell script? I have reached for Here Documents or _Heredoc_ syntax whenever this comes up. It's more readable than escaping quotes at the very least.
+
+Suppose you have some Generic JSON&trade; like so:
+
+```json
+{"id": 12345, "message": "a long message that is generic and not subject to trademarks"}
+```
+
+Now you'd like to CURL that payload to a POST endpoint. Here's how you can achieve that with _Heredoc_ syntax.
+
+```bash
+#!/bin/sh
+
+CONTENT=$(cat << EndOfJson
+{"id": 12345, "message": "a long message that is generic and not subject to trademarks"}
+EndOfJson
+)
+
+curl --request POST \
+    --url https://example.com/api/messages \
+    --data "$CONTENT"
+```
+
+You might wonder: why not use Single Quotes? Single Quotes will allow you to write your payload with Double Quotes inside, however you will lose the ability for environment variable string interpolation.
+
+```bash
+#!/bin/sh
+
+$THE_ID=$1
+
+## feat. string interpolation
+CONTENT=$(cat << EndOfJson
+{"id": $THE_ID, "message": "a long message that is generic and not subject to trademarks"}
+EndOfJson
+)
+
+curl --request POST \
+    --url https://example.com/api/messages \
+    --data "$CONTENT"
+```
+
+Now in this variant, you get to use `$THE_ID` freely in the payload. That's why I reach for _Heredoc_ whenever I need JSON in a shell script.
+
+## When it works
+
+As far as I know, without exhaustive testing, this works in:
+
+* sh
+* bash
+* zsh
