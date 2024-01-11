@@ -3,8 +3,6 @@ import mdx from "@astrojs/mdx";
 import react from "@astrojs/react";
 import tailwind from "@astrojs/tailwind";
 
-import critters from "astro-critters";
-
 // https://astro.build/config
 export default defineConfig({
   integrations: [
@@ -28,10 +26,6 @@ export default defineConfig({
       ///
       applyBaseStyles: false,
     }),
-
-    // inlines critical css
-    // as a better alternative to build.inlineStylesheets='auto'
-    // critters(),
   ],
 
   //
