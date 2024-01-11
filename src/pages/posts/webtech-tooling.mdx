@@ -44,7 +44,7 @@ While I had not as fervently promoted [`esbuild`](https://esbuild.github.io/), I
 
 ### typescript & tsc
 
-What's wrong with [`typescript`](https://www.npmjs.com/package/typescript) and `tsc`? Nothing, actually. For years I had tried to innovation in place by testing in production wacky contraptions like swc. Tools are great, but at the end of the day, choosing boring tools has the advantage of accumulated wisdom and expertise behind it.
+What's wrong with [`typescript`](https://www.npmjs.com/package/typescript) and `tsc`? Nothing, actually. For years I had tried to innovate in place by testing in production wacky contraptions like swc. New tools are great, yet choosing boring tools has the advantage of accumulated wisdom and expertise behind it.
 
 ## React and friends
 
@@ -79,7 +79,7 @@ React gets my pick today because...
 * it has a wide, fairly thriving ecosystem
 * the middle 80% React is conceptually fine, while the outlying edges can be a bit rough
 
-I would be remiss to say it's unicorns and rainbows with React though.
+I would be remiss to say it's all unicorns and rainbows with React though.
 
 ## Modern React "Frameworks" for "Apps"
 
@@ -110,21 +110,27 @@ Given that, I think there are situations and circumstances where a _Single Page 
 
 [`create-react-app` is dead](https://twitter.com/dan_abramov/status/1565509314978119680). [What will happen to `create-react-app`?](https://github.com/reactjs/reactjs.org/pull/5487#issuecomment-1409720741)
 
+Should port your application away? Yes.
+
+What should you port your application to? Vite.
+
 #### Vite
 
-Vite is your best bet for an SPA. It is the alternative to `create-react-app`.
+[Vite](https://vitejs.dev/) is your [best bet for an SPA](https://vitejs.dev/guide/#scaffolding-your-first-vite-project). It is the alternative to `create-react-app`.
 
 It's fast because it uses `esbuild` or optionally `swc` as of v4. Its community is thriving, its configuration out of the box is great, it supports TypeScript, it has a third of the dependencies of CRA. There are some downsides of course. [Jest is wacky with ESM](https://jestjs.io/docs/ecmascript-modules), so [Vitest is a critical alternative testing tool](https://vitest.dev/), but the porting process is tedious although not laborious.
 
-I have not ported an application from CRA to Vite yet, but aside from TypeScript and some other high level configuration, I can't think of anything in the actual application code that could break if your previous CRA configuration was truly vanilla. Having gone through a few fresh Vite projects now, I am quite happy with it.
+Aside from TypeScript and some other high level configuration, there's not much actual application code that could break if your previous CRA configuration was truly vanilla. The most trouble I've had porting apps from CRA to Vite has been ancient dependencies that have no awareness of the CJS vs ESM distinction.
 
-Here's a curiosity though: the new [react.dev installation guide](https://react.dev/learn/start-a-new-react-project#can-i-use-react-without-a-framework) goes _deep_ into framework-ful frameworks. It mysteriously burries what would have been the nearest viable alternative to create-react-app in a secondary section. Now, below I also go _deep_ into these hybrid apps but I think it is irresponsible to discard over ten years of momentum when your 2018-era feature set has just been documented.
+Here's _the_ curiosity though: the new [react.dev installation guide](https://react.dev/learn/start-a-new-react-project#can-i-use-react-without-a-framework) goes _deep_ into framework-ful frameworks. It mysteriously burries what would have been the nearest viable alternative to create-react-app in a secondary section. Now, below I also go _deep_ into these hybrid apps but I think it is irresponsible to discard over ten years of momentum when your 2018-era feature set has just been documented.
 
 #### Webpack
 
 You might say: "hey, I have such special needs that I must have a customized webpack option."
 
 You're wrong. You do not.
+
+To be honest, this _Webpack_ section is so awkward here now. It's difficult to even remember a time when I had to poke that thing with a stick in fear of it trying to bite the hand that feeds it. Everything changes!
 
 ### Server Side Rendered / Hybrid Apps
 
@@ -163,7 +169,20 @@ My hestiation is split between "can-my-team-figure-it-out" and the use case. The
 
 In 2023, being a [react.dev installation guide](https://react.dev/learn/start-a-new-react-project#nextjs) framework suggestion, surely Next is best? Well, _React Server Components_ came around at the same time as the Next 13.4 release, and along with that, the official recommendation that Next is _the framework_ for React. Now there's this dichotomy between _React Server Components_ (RSC) and Client Components, and a whole new world of integration and Mindshare Interia&trade; to overcome because of this flip flop. Finally, there is [documented discourse](https://news.ycombinator.com/item?id=36607487) and [decided displeasure](https://phryneas.de/react-server-components-controversy) for having for RSC. It all still feels very _beta_ to me (like the classical definition of beta, released, but unstable). I spent an afternoon tinkering with RSCs but left it at that. It's not ready and I am not ready.
 
-In Fall 2023, I attended React Summit US hosted in New Jersey. There's a [particularly good panel discussion about Hybrid Apps powered by React Server Components](https://www.youtube.com/watch?v=ujaTs-5LEWM?s=ryanmr.com) that you should watch. During the Q&A section, I asked the hardest question: for those commodity apps, should we go through this RSC effort? To be honest, I think _none_ of the answers presented were compelling, but I was truthfully looking for validation and hoping for someone to plainly say, "no, this is not ready yet." [Andrew Clark](https://twitter.com/acdlite) did say that in two years, we'll look back at this time as the beginning. There's a lot of Mindshare Interia&trade; to overcome, patterns and pacakges to build between now and then. Until then, my stance is still _stay away_.
+In Fall 2023, I attended React Summit US hosted in New Jersey. There's a [particularly good panel discussion about Hybrid Apps powered by React Server Components](https://www.youtube.com/watch?v=ujaTs-5LEWM?s=ryanmr.com) that you should watch. During the Q&A section, I asked the hardest question: for those commodity apps, should we go through this RSC effort? To be honest, I think _none_ of the answers presented were compelling, but I was truthfully looking for validation and hoping for someone to plainly say, "no, this is not ready yet." [Andrew Clark](https://twitter.com/acdlite) did say that in two years, we'll look back at this time as the beginning. There's a lot of Mindshare Interia&trade; to overcome, patterns and pacakges to build between now and then. Dan wrote about ["The Two Reacts"](https://overreacted.io/the-two-reacts/), which describe the _reason_ for all this server side attention. I want to share an excerpt from Dan's post here:
+
+> But in practice, the real “formula” is closer to UI = f(data, state). If you had no data or no state, it would generalize to those cases. But ideally, I’d prefer my programming paradigm to be able to handle both cases without having to pick another abstraction, and I know at least a few of you would like that too.
+> 
+> The problem to solve, then, is how to split our “f” across two very different programming environments. Is that even possible? Recall we’re not talking about some actual function called f—here, f represents all our components.
+> 
+> Is there some way we could split components between your computer and mine in a way that preserves what’s great about React? Could we combine and nest components from two different environments? How would that work?
+> 
+> How should that work?
+> [cite](https://overreacted.io/the-two-reacts/#:~:text=But%20in%20practice%2C%20the%20real)
+
+I think this is a great question. Whatever it is, it bridges the frontend-backend gap. Is it _React Server Components_? Time will tell. (The answer is: yes.)
+
+It's going to be a while for the dust to settle in this part of the ecosystem. Look, nobody is forcing you to use this stuff now. Do what works for right now, until it stops working. Then react.
 
 #### Remix
 
@@ -400,6 +419,8 @@ My only pertinent critism of `pnpm` is about using it in a docker image based bu
 ```
 
 Oh, ok, fine. One more. I'll never get used to typing it. I've used `yarn` for years.
+
+I know my new found appreciation for `pnpm` will be a hard sell, but that's ok. Try it, see if you like it.
 
 ## Validation
 
