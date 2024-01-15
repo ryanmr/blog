@@ -9,17 +9,19 @@ let title = "ryanmr blog";
 let description = "the blog for ryan rampersad";
 
 // Use Astro.glob to fetch all post with associated frontmatter
-const unsortedPosts = await Astro.glob("./posts/*.mdx");
+const unsortedPosts = await Astro.glob("./posts/**/*.mdx");
 const posts = unsortedPosts.sort((a, b) => {
-  
   const updatedA = a.frontmatter.updatedDates?.[0];
   const updatedB = b.frontmatter.updatedDates?.[0];
-  const dateA = updatedA ? new Date(updatedA) : new Date(a.frontmatter.publishDate);
-  const dateB = updatedB ? new Date(updatedB) : new Date(b.frontmatter.publishDate);
+  const dateA = updatedA
+    ? new Date(updatedA)
+    : new Date(a.frontmatter.publishDate);
+  const dateB = updatedB
+    ? new Date(updatedB)
+    : new Date(b.frontmatter.publishDate);
 
   return dateB.valueOf() - dateA.valueOf();
 });
-
 ---
 
 <html lang="en">
