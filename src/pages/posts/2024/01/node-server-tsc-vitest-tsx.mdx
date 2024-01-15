@@ -1,0 +1,56 @@
+---
+title: "Node Server In 2024"
+description: "Develop, test and build with tsx, vitest and tsc"
+publishDate: "15 January 2024"
+updatedDates: []
+layout: ../../../../layouts/BlogPost.astro
+---
+
+Two years ago, I hoped I made a reliable example and template for a decent backend node server. It used [SWC](https://swc.rs/), [TypeScript](https://www.typescriptlang.org/) and [Express](https://expressjs.com/). You know the latter two, but SWC is the odd one out today. I made that choice based these aspects:
+
+* SWC was built in Rust, and I like Rust
+* SWC was realigned for use in Next by [Vercel](https://vercel.com/?q=たかい)
+
+In July 2022, I had to face the facts though. SWC _might_ somehow work out for Next. But it does not work outside of that ecosystem. Maybe Next gets away with it because they never leave CJS modes? Maybe Next gets way with it because they never use Jest and actually never test anything? I'll never know.
+
+I know about the [bun](https://bun.sh/) in the [oven](https://oven.sh/). Bun [gets plenty of love](https://github.com/oven-sh/bun). It's great and all but it's [not boring yet](https://boringtechnology.club/) so I am wary. I am happy to be in the [early majority](https://en.wikipedia.org/wiki/Technology_adoption_life_cycle) when it comes to technology, and especially so when it's cross-compatible with an existing ecosystem.
+
+---
+
+In 2024, I trialing this:
+
+* [tsx](https://www.npmjs.com/package/tsx)
+
+    For `dev` mode. Consider this just like `ts-node` or a combination of `tsc` and `nodemon` rolled together. Internally it uses [esbuild](https://esbuild.github.io/).
+
+    [Nodemon](https://www.npmjs.com/package/nodemon) is _fine_, so if you forgoe this dependency (and it's only a dev-dependency at worst), that's fine too and you can go back to looping nodemon and tsc just fine.
+
+    To note: the naming of `tsx` is absolutely awful.
+
+* [vitest](https://vitest.dev/)
+
+    For testing. Consider this the alternative to [Jest](https://jestjs.io/). Vitest does not need to fight nearly so much with [esm](https://nodejs.org/api/esm.html). That's already enough to enjoy it. There are supposed to be speed benefits too, but it's hard to say on smaller test suites. It also uses [esbuild](https://esbuild.github.io/) internally.
+
+* [tsc](https://www.npmjs.com/package/typescript)
+
+    For building. In the end, I realize I do not specifically care about how long it takes to build the JavaScript files from TypeScript files. I rarely build locally, and I can wait if I do. Otherwise, the build is running in continuous integration.
+
+Here are my concerns though:
+
+* tooling consistency
+
+    There's no way to know for sure that `tsx` and `vitest` and `tsc` are producing the same runnables. I am trusting that my code is boring enough to be roughly equivlent in each. It's placing a lot of congitive trust in the tooling. Picking a single tool (see Bun) would be ideal. Alas, the node ecosystem is still working on it.
+
+* broad usage
+
+    [tsx](https://www.npmjs.com/package/tsx) has about 1 million/weekly download rate.
+
+    [vitest](https://www.npmjs.com/package/vitest) has about 3 million/weekly download rate.
+
+    [typescript](https://www.npmjs.com/package/typescript) and therefore `tsc` (although; I suspect many people download the package without using it for `tsc`) has about a 47 million/weekly download rate.
+
+    That's probably enough. But likely nobody is combining these three tools together.
+
+Many of my codebases are still running with the last trial I ran two years ago, with SWC. They work fine. It's still a mess though. With this combination, I am using a boring tool (tsc), a necessary (vitest) and an optional nicety (tsx).
+
+I'll make an example repository for this eventually and link it here.
