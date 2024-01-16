@@ -167,9 +167,14 @@ My hestiation is split between "can-my-team-figure-it-out" and the use case. The
 * 🙈 Do you have a centralized data source (instead of distributed)? With data centralization, running at the edge will not be a major latency improvement.
 * 🙊 Do you really have developers that are ready to solve entirely new types of problems that come up with state shared between the server, the edge and the browser? You might, you might not. But it's not free. It's bizarre to question my teams if they can use Next or not. Sure, of course they can. But they have had 6 years of full time create-react-app flavored development. It's just tough to justify.
 
-In 2023, being a [react.dev installation guide](https://react.dev/learn/start-a-new-react-project#nextjs) framework suggestion, surely Next is best? Well, _React Server Components_ came around at the same time as the Next 13.4 release, and along with that, the official recommendation that Next is _the framework_ for React. Now there's this dichotomy between _React Server Components_ (RSC) and Client Components, and a whole new world of integration and Mindshare Interia&trade; to overcome because of this flip flop. Finally, there is [documented discourse](https://news.ycombinator.com/item?id=36607487) and [decided displeasure](https://phryneas.de/react-server-components-controversy) for having for RSC. It all still feels very _beta_ to me (like the classical definition of beta, released, but unstable). I spent an afternoon tinkering with RSCs but left it at that. It's not ready and I am not ready.
+In 2023, being a [react.dev installation guide](https://react.dev/learn/start-a-new-react-project#nextjs) framework suggestion, surely Next is best? Well, _React Server Components_ came around at the same time as the Next 13.4 release, and along with that, the official recommendation that Next is _the framework_ for React. Now there's this dichotomy between _React Server Components_ (RSC) and Client Components, and a whole new world of integration and Mindshare Interia&trade; to overcome because of this flip flop. Finally, there is [documented discourse](https://news.ycombinator.com/item?id=36607487) and [decided displeasure](https://phryneas.de/react-server-components-controversy) for having for RSC. It all still feels very _beta_ to me (like the [classical definition of beta](https://blog.codinghorror.com/alpha-beta-and-sometimes-gamma/), released, but unstable). I spent an afternoon tinkering with RSCs but left it at that. It's not ready and I am not ready.
 
-In Fall 2023, I attended React Summit US hosted in New Jersey. There's a [particularly good panel discussion about Hybrid Apps powered by React Server Components](https://www.youtube.com/watch?v=ujaTs-5LEWM?s=ryanmr.com) that you should watch. During the Q&A section, I asked the hardest question: for those commodity apps, should we go through this RSC effort? To be honest, I think _none_ of the answers presented were compelling, but I was truthfully looking for validation and hoping for someone to plainly say, "no, this is not ready yet." [Andrew Clark](https://twitter.com/acdlite) did say that in two years, we'll look back at this time as the beginning. There's a lot of Mindshare Interia&trade; to overcome, patterns and pacakges to build between now and then. Dan wrote about ["The Two Reacts"](https://overreacted.io/the-two-reacts/), which describe the _reason_ for all this server side attention. I want to share an excerpt from Dan's post here:
+In Fall 2023, I attended React Summit US hosted in New Jersey. There's a [particularly good panel discussion about Hybrid Apps powered by React Server Components](https://www.youtube.com/watch?v=ujaTs-5LEWM?s=ryanmr.com) that you should watch. During the Q&A section, I asked the hardest question: for those commodity apps, should we go through this RSC effort? To be honest, I think _none_ of the answers presented were compelling, but I was truthfully looking for validation and hoping for someone to plainly say, "no, this is not ready yet." [Andrew Clark](https://twitter.com/acdlite) did say that in two years, we'll look back at this time as the beginning. There's a lot of Mindshare Interia&trade; to overcome, patterns and pacakges to build between now and then.
+
+Dan Abramov writes about ["The Two Reacts"](https://overreacted.io/the-two-reacts/), which is sort of a Socratic method hypothetical scenario to help understand the Client and [~~"Server"~~ "Serialized"](https://twitter.com/ryanflorence/status/1662270570258628609) flavors of React.
+
+<details>
+<summary>Dan's "The Two Reacts" Excerpt</summary>
 
 > But in practice, the real “formula” is closer to UI = f(data, state). If you had no data or no state, it would generalize to those cases. But ideally, I’d prefer my programming paradigm to be able to handle both cases without having to pick another abstraction, and I know at least a few of you would like that too.
 > 
@@ -178,9 +183,18 @@ In Fall 2023, I attended React Summit US hosted in New Jersey. There's a [partic
 > Is there some way we could split components between your computer and mine in a way that preserves what’s great about React? Could we combine and nest components from two different environments? How would that work?
 > 
 > How should that work?
+>
 > [cite](https://overreacted.io/the-two-reacts/#:~:text=But%20in%20practice%2C%20the%20real)
 
-I think this is a great question. Whatever it is, it bridges the frontend-backend gap. Is it _React Server Components_? Time will tell. (The answer is: yes.)
+</details>
+
+Dan's positioning this for a follow up post where these Two Reacts are combined back into one React. I'll update this section with an excerpt when that comes along.
+
+There's increasing discord regarding the flat-fallen hype sundering of the React ecosystem:
+
+* [Cassidoo - Annoyed at React](https://blog.cassidoo.co/post/annoyed-at-react/)
+* [Matteo Frana - React, where are you going?](https://dev.to/matfrana/react-where-are-you-going-5284)
+* [Zac Skalko - The React Empire](https://zapplebee.online/the-react-empire)
 
 It's going to be a while for the dust to settle in this part of the ecosystem. Look, nobody is forcing you to use this stuff now. Do what works for right now, until it stops working. Then react.
 
@@ -190,7 +204,9 @@ Other than Next, there's Remix.
 
 Remix is still on my watch list, but there it has remained since 2022. [Hydrogen](https://hydrogen.shopify.dev/roadmap/) is some ssort of Remix too, and [Remix joined Shopify](https://shopify.engineering/remix-joins-shopify), and [Kent left Remix](https://kentcdodds.com/blog/a-review-of-my-time-at-remix). There's so much going, I can hardly keep up!
 
-I think Remix demos well in videos. I hear good things about the progress, and commitment to backwards compatability. In particular, a promise to bring ye-olde React Router apps into the modern era somehow. For now, I am not interested in adding yet another major framework into my toolkit.
+In Early 2024, [Remix 2.5.0 released](https://github.com/remix-run/remix/blob/main/CHANGELOG.md#v250) an ["(Unstable)" SPA Mode](https://remix.run/docs/en/main/future/spa-mode) feature. It's bridging the gap between React Router v6 era static website single page apps and Hybrid Apps. It's early days for this, but if it gains any traction it will be promising. This is the committement to backwards compatability that I like to see.
+
+Remix demos well in videos and tutorials. I am waiting for more community usage though.
 
 ### Static Site Generated
 
@@ -335,19 +351,6 @@ I think JavaScript earns a rightful place in your backend stack, but only up to 
 
 ## Package Managers
 
-* `npm` has a legacy of poor performance, lagging feature sets and not being `yarn`
-* [`yarn` has a legacy](https://yarnpkg.com/) of being great, being fine, and having no viable upgrade path to any later version
-* [`berry` is probably fine](https://github.com/yarnpkg/berry), but you will have to learn more about it
-* `pnpm` is probably fine
-
-In many ways, `npm` vs `yarn` is like `maven` vs `gradle`, everyone picks `gradle` but `maven` hosts the registry and works as a tool OK too.
-
-For now I recommend `yarn` but unfortunately everyday it marches closer to unusable's door.
-
-* `npm` almost has feature parity now with `yarn`, with `overrides` but there's still rough edges
-* `pnpm` is probably the successor we all want and need to `yarn` and not `berry`, but because it does not come pre-bundled in the baseline node docker images, I refuse to recommend it at this time
-    * plus, it would yet another tool for my already "frontend" exhausted teams to know
-
 ### npm
 
 `npm` is never going away. But that does not mean you should use it. For me, my situation lends itself towards better tooling.
@@ -394,18 +397,19 @@ Here's _two_ examples of weirdness from berry:
 
 ### pnpm
 
-I have alluded to this. `pnpm` is now my preference. I feel like it's a successor to `npm` in name but functionally an evolution of _goodness_ of `yarn` (as in, yarn classic).
+`pnpm` is now my preference. I feel like it's a successor to `npm` in name but functionally an evolution of _goodness_ of `yarn` (as in, yarn classic).
 
 It has all the things I want:
 
 * fast install times because of a global cache
 * a sensible api / cli interface
 * features for removing dev-deps without monkeying with module folders
-* reads .npmrc
+* lockfile upgrades
+* reads and respects .npmrc
 * auto-resolving conflicts
 * ... and the list goes on ...
 
-My only pertinent critism of `pnpm` is about using it in a docker image based build system, since `pnpm` is not enabled by default in the docker hub node images. Despite that, it's actually fine, if not just for a tiny bit more noise.
+My only pertinent criticism of `pnpm` is about using it in a docker image based build system, since `pnpm` is not enabled by default in the docker hub node images. Despite that, it's actually fine, if not just for a tiny bit more noise.
 
 ```yml
       #
