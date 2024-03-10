@@ -465,7 +465,7 @@ Forms are _the_ worst part of any webapp.
 * 🟢 [react-hook-form](https://react-hook-form.com/)
     * by default, using _uncontrolled_ inputs, react hook form manages to do all the useful form management things and keep performance much higher because the component tree isn't always re-rendering
     * react-hook-form also has escape hatches for controlled inputs, letting you create synthetic form inputs as you need (like, for example, a non-native date picker)
-    * 🍌 using react-hook-form for controlled inputs is fine, but too much of a good thing is bad, and of course if you have hundreds of controlled inputs updating concurrently, there's bound to be lag
+    * 🍌 using react-hook-form for controlled inputs is fine, but too much of a good thing is bad, and of course if you have hundreds of controlled inputs updating concurrently, there's bound to be lag; for example, I was recently working with a team that had roughly 1400 _controlled_ form elements mounted which caused lag
 * 🟠 [Formik](https://formik.org/)
     * I haven't used Formik in a while but I think it's still widely used and most likely fine for the majority of forms
 * 🟠 [TanStack Form]https://tanstack.com/form/latest)
@@ -480,12 +480,12 @@ You knew this was coming.
 Tailwind is the only UI library you need. Then you need creativity and time.
 
 * 🟠 Tailwind
-    * What, putting an orange caution circle on my own recommendation? Who's better to provide constructive criticism?
+    * What, putting an orange caution circle on my own recommendation? Who's better to provide constructive criticism? You should always distrust your favorites.
     * Pros:
-        * _atom_ design at its finest
+        * _atomic_ design at its finest purest form
         * co-locates styles and markup structure _and_ presentation logic together
         * makes [AHA style](https://kentcdodds.com/blog/aha-programming) programming easy (neither, DRY, nor WET; _"prefer duplication over the wrong abstraction"_ or _"Optimize for change first"_)
-    * The first major _con_, if you call it that, is that its still difficult to package and distribute components styled with Tailwind to other projects
+    * The first major _con_, if you call it that, is that its still difficult to package and distribute components styled with Tailwind to other projects; approaches like [shadcn ui](https://ui.shadcn.com/) and [catalyst](https://catalyst.tailwindui.com/) forgoe the usual library approach and instead copy these basic components into your own project - reusability is still tricky
     * The second minor _con_, if you call it that, is that paired with React and TypeScript, when you do need to make an abstraction, there's been little guidance on how to actually do this in a safe and sane way. Perhaps [with some more practice](/posts/react-polymorphic-as-component-typescript), this will get easier, and hopefully a [first party adoption of tailwind-merge](https://www.npmjs.com/package/tailwind-merge)
     * The third patch _con_, if you call it that, is that Tailwind requires a mindset shift if you're used to something else. I've been on the receiving end of disdain for liking and using Tailwind. It's come up [time and time again on Hacker News](https://hn.algolia.com/?dateRange=pastYear&page=0&prefix=true&query=Tailwind&sort=byPopularity&type=story), always entertaining either way. Give it a try.
 * 🙅‍♂️ MUI
