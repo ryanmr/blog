@@ -1,0 +1,39 @@
+---
+title: "An alias for node package managers"
+description: "yarn is dead; pnpm is hard to type"
+publishDate: "09 Mar 2024"
+updatedDates: []
+layout: ../../../../layouts/BlogPost.astro
+---
+
+Yarn 1 is never getting updated again. Yarn Berry (versions 2-4) are too different. `yarn` is dead. But you might have dozens of projects using `yarn` still and while you onboarded to `pnpm`, your muscle memory betrays you in every repo at least once a day.
+
+Once a long time ago, I am sure I saw a script just like this on Twitter, but I didn't copy it back then or save a note for it. Later I re-created it.
+
+```bash
+#!/bin/bash
+
+# Do you have timeless muscle memory of using yarn?
+# Consider this script with an alias of `yarn` or more generic `y` or `p`
+# 
+# Then, detect lock file and run the package manager based on the lockfile
+
+# Function to run npm, yarn, or pnpm based on the lock file present
+run_package_manager() {
+  if [ -e "pnpm-lock.yaml" ]; then
+    pnpm "$@"
+  elif [ -e "yarn.lock" ]; then
+    yarn "$@"
+  elif [ -e "package-lock.json" ]; then
+    npm "$@"
+  else
+    pnpm "$@"
+  fi
+}
+
+# Call the function with all passed arguments
+run_package_manager "$@"
+```
+
+The small script that determines which package manage among npm, yarn, and pnpm, to run based on the lockfile. Or it defaults to pnpm. You could customize that behavior if you want to. At one time I thought I'd alias this to `yarn` but it was a bit too wild for me. Instead I ended up using `p`—perhaps for _package_ manager.
+
