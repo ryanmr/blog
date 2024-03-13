@@ -1,11 +1,9 @@
 import rss from "@astrojs/rss";
 
-const postImportResult = import.meta.glob("./posts/*.mdx", { eager: true });
-const posts = Object.values(postImportResult);
+export async function GET(context) {
+  const postImportResult = import.meta.glob("./posts/*.mdx", { eager: true });
+  const posts = Object.values(postImportResult);
 
-// https://github.com/withastro/rfcs/discussions/419
-
-export const get = async () => {
   const items = posts.map((post) => ({
     link: post.url,
     title: post.frontmatter.title,
@@ -28,4 +26,4 @@ export const get = async () => {
     // (optional) inject custom xml
     customData: `<language>en-us</language>`,
   });
-};
+}
