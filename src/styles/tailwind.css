@@ -14,7 +14,7 @@
     font-family: "Atkinson Hyperlegible";
     font-style: normal;
     font-weight: 400;
-    font-display: swap;
+    font-display: fallback;
     src: url("/fonts/atkinson-hyperlegible/WOFF2/Atkinson-Hyperlegible-Regular-102a.woff2")
       format("woff2");
     unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB,
@@ -26,7 +26,7 @@
     font-family: "Atkinson Hyperlegible";
     font-style: normal;
     font-weight: 400;
-    font-display: swap;
+    font-display: fallback;
     src: url("/fonts/atkinson-hyperlegible/WOFF2/Atkinson-Hyperlegible-Regular-102a.woff2")
       format("woff2");
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
@@ -39,7 +39,7 @@
     font-family: "Pacifico";
     font-style: normal;
     font-weight: 400;
-    font-display: swap;
+    font-display: fallback;
     src: local(""),
       url("/fonts/pacifico/pacifico-v17-latin-regular.woff2") format("woff2"),
       /* Super Modern Browsers */
@@ -56,7 +56,7 @@
     font-family: "League Gothic";
     font-style: normal;
     font-weight: 400;
-    font-display: swap;
+    font-display: fallback;
     src: local(""),
       url("/fonts/league-gothic/WOFF2/LeagueGothic-Regular.woff2")
         format("woff2"),
