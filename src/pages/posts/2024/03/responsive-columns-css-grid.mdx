@@ -1,0 +1,76 @@
+---
+title: "Responsive Columns with CSS Grid"
+description: "Now that syntax is thinking outside of the box model"
+publishDate: "13 Mar 2024"
+updatedDates: []
+layout: ../../../../layouts/BlogPost.astro
+---
+
+[Kevin Powell shared this great CSS Grid trick](https://www.youtube.com/watch?v=r1IitKbJRFE) and I'm here to repeat it, and share how much I use it and like it.
+
+Suppose you a dozen items in your grid. At the biggest breakpoint, you might have 4 columns, then three, two and on the smallest most likely mobile breakpoint, a single column.
+
+Here's [a rudimentary grid of cards](https://play.tailwindcss.com/BmvEgjkx1K).
+
+```html
+<div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+  <div class="h-24 w-full rounded bg-slate-400 shadow"></div>
+  <div class="h-24 w-full rounded bg-slate-400 shadow"></div>
+  <div class="h-24 w-full rounded bg-slate-400 shadow"></div>
+  <div class="h-24 w-full rounded bg-slate-400 shadow"></div>
+
+  <div class="h-24 w-full rounded bg-slate-400 shadow"></div>
+  <div class="h-24 w-full rounded bg-slate-400 shadow"></div>
+  <div class="h-24 w-full rounded bg-slate-400 shadow"></div>
+  <div class="h-24 w-full rounded bg-slate-400 shadow"></div>
+
+  <div class="h-24 w-full rounded bg-slate-400 shadow"></div>
+  <div class="h-24 w-full rounded bg-slate-400 shadow"></div>
+  <div class="h-24 w-full rounded bg-slate-400 shadow"></div>
+  <div class="h-24 w-full rounded bg-slate-400 shadow"></div>
+</div>
+```
+
+In this sample, I increased `grid-cols` count (which maps to the `grid-template-columns` css property) for each breakpoint, starting at mobile size going up to the largest size. That works!
+
+Here's [the more advanced version](https://play.tailwindcss.com/7GwARHO1rt):
+
+```html
+<div class="grid grid-cols-[repeat(auto-fill,minmax(min(18rem,100%),1fr))] gap-4">
+  <div class="h-24 w-full rounded bg-slate-500 shadow"></div>
+  <div class="h-24 w-full rounded bg-slate-500 shadow"></div>
+  <div class="h-24 w-full rounded bg-slate-500 shadow"></div>
+  <div class="h-24 w-full rounded bg-slate-500 shadow"></div>
+
+  <div class="h-24 w-full rounded bg-slate-500 shadow"></div>
+  <div class="h-24 w-full rounded bg-slate-500 shadow"></div>
+  <div class="h-24 w-full rounded bg-slate-500 shadow"></div>
+  <div class="h-24 w-full rounded bg-slate-500 shadow"></div>
+
+  <div class="h-24 w-full rounded bg-slate-500 shadow"></div>
+  <div class="h-24 w-full rounded bg-slate-500 shadow"></div>
+  <div class="h-24 w-full rounded bg-slate-500 shadow"></div>
+  <div class="h-24 w-full rounded bg-slate-500 shadow"></div>
+</div>
+```
+
+This syntax is crazy but... well there's no justification for arbitrary values in Tailwind. Anyway, what that complicated class means is, roughly: 
+
+- `repeat(auto-fill`: automatically fill the row with as many columns as it can it can fit without overflowing while filling up the container
+- `minmax(min(18rem,100%), 1fr)`: keep each item at least 18rem or the container's width if it's less than 18rem (you can adjust this for your needs)
+
+In other words, `grid-cols-[repeat(auto-fill,minmax(min(18rem,100%),1fr))]` means a grid layout where columns can automatically fill the available columns in the container. Each column's width is at least 18rem or the container's width (if it's less than 18rem), but not more than what 1fr would allocate based on the available space. This setup ensures a responsive design that adjusts column count and size based on the container width, making it highly flexible for different screen sizes.
+
+Here's that same CSS again without the Tailwind flavor:
+
+```css
+.response-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(18rem, 100%), 1fr));
+    gap: 1rem;
+}
+```
+
+I use this on my own site in the [referrals section](https://ryanrampersad.com/#more).
+
+
