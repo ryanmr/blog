@@ -13,7 +13,7 @@ export function PageHeaderA() {
   );
 }
 
-export function PageHeader() {
+export function PageHeaderB() {
   const text = "Ryan Rampersad";
 
   let selections = (() => {
@@ -46,6 +46,37 @@ export function PageHeader() {
       );
     }
     return <span key={index}>{ch}</span>;
+  });
+
+  return (
+    <nav className="container mx-auto my-6">
+      <div className="p-2 text-center">
+        <a
+          href="/"
+          className="p-4 font-brand bg-transparent hover:bg-ryan-black-transparent border border-transparent hover:border-red-600 transition-all duration-300 rounded uppercase text-3xl tracking-wider group"
+        >
+          {jsx}
+        </a>
+      </div>
+    </nav>
+  );
+}
+
+export function PageHeader() {
+  const text = "Ryan Rampersad";
+
+  const jsx = text.split("").map((ch, index) => {
+    const delay = `${100 * index}ms`;
+
+    return (
+      <span
+        key={index}
+        className="group-hover:bg-red-500 duration-75 ease-linear transition-all"
+        style={{ transitionDelay: delay }}
+      >
+        {ch}
+      </span>
+    );
   });
 
   return (
