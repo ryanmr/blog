@@ -5,6 +5,7 @@
     "module": "ESNext",
     // Enable node-style module resolution, for things like npm package imports.
     "moduleResolution": "node",
+    "jsx": "react-jsx",
     "allowSyntheticDefaultImports": true,
     // Enable JSON imports.
     "resolveJsonModule": true,
