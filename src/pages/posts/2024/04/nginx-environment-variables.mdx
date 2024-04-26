@@ -1,0 +1,249 @@
+---
+title: "nginx environment variables"
+description: "Always the missing feature"
+publishDate: "26 April 2024"
+updatedDates: []
+layout: ../../../../layouts/BlogPost.astro
+---
+
+Have you ever needed basic environment variables supported in your [NGINX server](https://www.nginx.com/)? It's incredible that NGINX does not support such a basic feature. Sure, it's supposed to be a declarative file that determistically routes and in theory any dynamic values could change that behavior. Despite that though, in reality you often do environment variables. There's a workaround.
+
+🔥 This might be a good time to pause and consider: do I need environment variables or do I need business logic routing? What's the difference? I'd argue the environment variable approach is restricted to simple string substitutions. If you're planning on making one artifact (as a docker image, for example) and promoting that through dev, stage and prod environments, it's ideal if `$PROXY_PASS_UPSTREAM_HOST` could change without rebuilding the image per environment. Meanwhile, I'd argue the business logic routing predicates conditional access—or any logic really at all—it's just not what NGINX is good at. For that, consider our favorite escape hatch: [OpenResty](https://openresty.org/en/).
+
+The [NGINX dockerhub docs](https://hub.docker.com/_/nginx) [(deep link)](https://github.com/docker-library/docs/tree/master/nginx#using-environment-variables-in-nginx-configuration-new-in-119) mentions how you might begin your environment variable journey:
+
+> Out-of-the-box, nginx doesn't support environment variables inside most configuration blocks. But this image has a function, which will extract environment variables before nginx starts.
+> 
+> Here is an example using docker-compose.yml:
+> 
+> ```yaml
+> web:
+>   image: nginx
+>   volumes:
+>    - ./templates:/etc/nginx/templates
+>   ports:
+>    - "8080:80"
+>   environment:
+>    - NGINX_HOST=foobar.com
+>    - NGINX_PORT=80
+> ```
+> 
+> By default, this function reads template files in /etc/nginx/templates/*.template and outputs the result of executing envsubst to /etc/nginx/conf.d.
+> 
+> So if you place templates/default.conf.template file, which contains variable references like this:
+> 
+> `listen       ${NGINX_PORT};`
+> outputs to /etc/nginx/conf.d/default.conf like this:
+> 
+> `listen       80;`
+
+All of that boils down to: use [envsubst](https://man7.org/linux/man-pages/man1/envsubst.1.html). Initially I thought [a8m/envsubst](https://github.com/a8m/envsubst) was the origin of this command, but it turns out that envsubst lives in [gettext](https://www.gnu.org/software/gettext/). Here's a [great tutorial on envsubst](https://www.baeldung.com/linux/envsubst-command).
+
+Let's look at example files next.
+
+Here's your baseline `nginx.conf`. Notice that everything that could potentially write from the filesystem is targetting `/tmp`. More on that later.
+
+```nginx
+worker_processes  auto;
+pid        /tmp/nginx.pid;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    client_body_temp_path /tmp/nginx_client_body_temp;
+    proxy_temp_path /tmp/nginx_proxy_temp;
+    fastcgi_temp_path /tmp/nginx_fastcgi_temp;
+    uwsgi_temp_path /tmp/nginx_uwsgi_temp;
+    scgi_temp_path /tmp/nginx_scgi_temp;
+
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    sendfile        on;
+    keepalive_timeout  65;
+    include /etc/nginx/conf.d/*.conf;
+    include /tmp/default.conf; # NOTE <-- this line is important; it will not work without this!
+}
+```
+
+Here's your baseline `default.conf` where all the routing rules live. This file is an example, and in the example I am redirecting any path caught to the equivlent to another domain set by the replacable environment variables.
+
+```nginx
+server {
+    listen 8765;
+    server_name $hostname;
+    server_tokens off;
+    large_client_header_buffers 4 32k;
+
+    root   /usr/share/nginx/html;
+    index  index.html index.htm;
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubdomains; preload";
+    add_header X-Frame-Options SAMEORIGIN;
+    add_header X-Content-Type-Options nosniff;
+    add_header Cache-Control "max-age=0, no-cache, must-revalidate";
+    add_header Pragma "no-cache";
+
+    location /healthz {
+        add_header Content-Type application/json;
+        return 200 '{"project": "redirect", "time": "${msec}"}';
+    }
+
+    location / {
+        return ${APP_REDIRECT_STATUS} ${APP_REDIRECT_DESTINATION}$request_uri;
+    }
+}
+```
+
+How do we actually trigger the substitutions? If you try `envsubst` locally to test, you might notice that [some values get string replaced](https://serverfault.com/a/755541) into `""`—into the empty string. That's mildly annoying.
+
+The other constraint I had was that I run on a readonly filesystem. That means I cannot write these files _in place_. I can only write to `/tmp` after the container starts up. That's also mildly annoying.
+
+Mitigating both issues requires everyone's favorite: the `entrypoint.sh`. The entrypoint will give us the ability to script our way out of the mis-replacing some variables with empty strings, and it will also allow us to control where the files live, and where NGINX's initial configuration file lives.
+
+```sh
+#/bin/sh
+
+echo "👋 hello nginx"
+
+#
+# 🐚 Shell magic. This reads the environment variables, and selects only the variables
+# that begin with APP_. This limits envsubst so that it only replaces these prefixed
+# variables and ignores other strings in the nginx files that begin with `$`.
+#
+# You must reference variables to be replaced in 
+# the nginx files with the full syntax `${APP_VARIABLE}`.
+#
+export ALLOWED_TO_REPLACE=$(printenv | grep '^APP_' | cut -d '=' -f 1 | awk '{print "${"$1"}"}' | tr '\n' ' ')
+
+#
+# For each file, list the ALLOWED_TO_REPLACE that you need replaced (prefixed by APP_)
+#
+# 💾 note: that the output file _must_ be in `/tmp` because
+# this container runs in a readonly filesystem
+#
+# 🌿 note: recommended to prefix your variables with APP so that
+#    envsubst does not replace other values that begin with `$`
+#
+envsubst "$ALLOWED_TO_REPLACE" < /app/default.conf > /tmp/default.conf
+envsubst "$ALLOWED_TO_REPLACE" < /app/nginx.conf > /tmp/nginx.conf
+
+if [ -n "$APP_CONFIG_DEBUG" ]; then
+  #
+  # These commands will run if APP_CONFIG_DEBUG is set to any non-empty value
+  # This is useful for debugging
+  #
+  echo "Debugging is enabled, printing configuration files:"
+  echo -e "/tmp/nginx.conf\n\n"
+  cat /tmp/nginx.conf
+  echo -e "/tmp/default.conf\n\n"
+  cat /tmp/default.conf
+fi
+
+echo -e "🎬 starting nginx\n"
+
+nginx -c /tmp/nginx.conf -g "daemon off;"
+
+echo "👋 bye nginx"
+```
+
+In this example `entrypoint.sh`, I kept all of my comments for your viewing pleasure. Here's the rough breakdown:
+
+1. `ALLOWED_TO_REPLACE` defines the list of variables that envsubst is allowed to replace
+
+    Without this, a variable like `$request` might get replaced with an empty string. In the logger string, that might only be annoying. But in another part of a file, it could lead to invalid syntax.
+
+    The shell magic here prints the environment, pipes that to grep, targetting lines specifically prefixed with `APP_` (a convention you could change if you wanted to), and then only keeps the name parts of the `key=value` pairs.
+2. The two `envsubst` calls with `"$ALLOWED_TO_REPLACE"` as the allowed replacement list
+
+    This step writes two files to `/tmp`. It's important to note that the template files _do not_ live in their conventional NGINX homes, and do not get written back there. If there's one thing I'd change in this approach, it's that the two template files are not named obviously to declare they are templates.
+
+3. An optional debugging block
+
+    Totally optional, but since this replacement happens in the container at startup, you might not know ahead of time what the outcome will be and its hard to observe otherwise. This just prints the files. You could do more, like also printing the list of the replaced variables.
+
+4. `nginx -c` startup
+
+    The `nginx -c` command specifies the `/tmp/nginx.conf` as its initial config file and not the usual `/etc/nginx/nginx.conf` file.
+
+
+The last step is to get all of this into a docker image. Here's the `Dockerfile`:
+
+```Dockerfile
+FROM nginx:alpine
+
+#
+# use tini for responsive containers
+# use curl for debugging
+#
+RUN apk update --no-cache \
+    && apk add --no-cache tini curl
+
+WORKDIR /app
+
+#
+# remove the default.conf that nginx has by default
+#
+RUN rm /etc/nginx/conf.d/default.conf
+
+#
+# copy in dist content; this would be your webapp
+#
+COPY ./dist /usr/share/nginx/html/
+
+#
+# copy in templates (i.e. non-functional due to placeholders)
+# of the nginx configuration files
+#
+COPY ./nginx/nginx.conf /app/nginx.conf
+COPY ./nginx/default.conf /app/default.conf
+
+#
+# copy in the customized entrypoint.sh
+# that runs envsubst at runtime 
+# when k8s starts the container
+#
+COPY ./entrypoint.sh /app/entrypoint.sh
+
+#
+# this is set the kubernetes resolver; but you can customize it if necessary
+#
+ENV APP_NGINX_RESOLVER 172.20.0.10
+
+USER 101
+
+ENTRYPOINT ["/sbin/tini", "--", "/bin/sh", "/app/entrypoint.sh"]
+```
+
+Now, I'd run this on kubernetes normally but let's run locally for now:
+
+```shell
+docker build -f Dockerfile -t nginx_with_variables:1 .
+docker run -it -p 8765:8765 -e APP_CONFIG_DEBUG=true -e APP_REDIRECT_STATUS=307 -e APP_REDIRECT_DESTINATION=https://example.com nginx_with_variables:1
+```
+
+In these commands:
+
+1. Build the image (make sure your paths are right)
+2. Run the image with various environment variable settings
+
+    - `-it` means you can easily cancel out of the build with `ctrl+c`
+    - Port mapping `8765:8765` is arbitrary, you can pick anything
+    - 
+
+When you put all of this together:
+
+1. Your docker image will get built with the two template files `nginx.conf` and `default.conf`, the `entrypoint.sh` and whatever your `./dist` contains (if you need it)
+2. Your entrypoint will start, look in the environment for `APP_` prefixed environment variables and create an allowed list of replacements based on those
+3. New `nginx.conf` and `default.conf` are created after being string replaced
+4. The nginx server starts up using the new `nginx.conf` file as its entrypoint
+
+It's incredible NGINX does not have this functionality built in. You might wonder, does OpenResty solve it? Yes, but only kind of. OpenResty will allow you to pull environment variables from the... environment as you would expect. But you have to specifically allow each one in the `nginx.conf` file, while this variant handles it with a bit of scripting.
+
+🔥 Finally, and again, consider the question? Do you need NGINX at this point or do you need a more robust server capability? NGINX is great at routing and great at proxying. Don't force the tool. Use the right tool.
