@@ -1,9 +1,8 @@
 ---
 import BaseHead from "../components/BaseHead.astro";
-import { PageHeader } from "../components/PageHeader";
-import { LetterHeader } from "../components/LetterHeader";
 import Footer from "../components/Footer.astro";
-import { LikeButton } from "../components/LikeButton";
+import { LetterHeader } from "../components/LetterHeader";
+import { PageHeader } from "../components/PageHeader";
 
 import "../styles/tailwind.css";
 
@@ -26,7 +25,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site).pathname;
 
 <html lang="en">
   <head>
-    <BaseHead title={title} description={description} />
+    <BaseHead title={title + " — ryanmr blog"} description={description} />
   </head>
 
   <body>
