@@ -1,0 +1,152 @@
+---
+title: "How to onboard to frontend"
+description: "It's a long road"
+publishDate: "3 Jul 2024"
+updatedDates: []
+layout: ../../../../layouts/BlogPost.astro
+---
+
+Hi,
+
+Do you want to learn frontend? If you already know how to code (Go, Java, Python), you're already halfway there!
+
+## JavaScript
+
+> You might wonder, what's the difference between JavaScript and Java? It's as similar as `car` and `carpet`. Or in short, entirely unrelated, they just sound similar.
+
+You might want to read through some JavaScript tutorials to a feel for the language, but similarly to most C-inspired languages, it has your usual assortment of variables, conditionals, loops, functions, methods, and so on.
+
+Here are some good written resources on JavaScript:
+* [JavaScript.info](https://javascript.info/)
+* [GeeksForGeeks: JavaScript](https://www.geeksforgeeks.org/javascript/)
+* [JavaScriptTutorial](https://www.javascripttutorial.net/)
+* [TutorialsPoint - JavaScript](https://www.tutorialspoint.com/javascript/index.htm)
+* [MDN: JavaScript Basics](https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/JavaScript_basics)
+
+> What's an incredibly reliable reference for JavaScript and web technology? MDN! That's the [Mozilla Developer Network](https://developer.mozilla.org/). There's reference here from HTML, CSS to JavaScript. You name it.
+
+Along side JavaScript, which you can think of sort of this nervous system for the web (it _reacts_ to interaction typically), you also have the bones and the skin, HTML and CSS respectively.
+
+We'll come back to TypeScript later, which is useful but not fundamental.
+
+---
+
+## HTML
+
+HTML, the bones, is how everything is structured as markup. The frontend has a morphogenic history. Originally HTML was built to display static documents. Over time, through the power of CSS and JavaScript though, HTML was used more and more as a carrier for richer user experience. HTML still brings its past with it, providing not only structure and markup, but also _semantic_ meaning. The semantics that HTML provides helps search engines, browsers, screen readers and more understand unwritten implications about content.
+
+You probably already know a bit (which is enough) about HTML. It's all open-and-close tags.
+
+Here are some good written resources on HTML:
+* https://developer.mozilla.org/en-US/docs/Learn/HTML
+* https://html.com/
+* https://www.geeksforgeeks.org/html-tutorial/
+
+> 🌼 Fun trivia: Ryan learned HTML when he was 12 years old, in 6th grade! He read an HTML book on the last day of winter break.
+
+---
+
+## CSS
+
+CSS, the skin, is how everything looks. That's _Cascading Style Sheets_. The _Cascade_ is a concept of applicable hierarchy, where application of styles are applied based on specificity and nearness to an element. It's complicated, but powerful.
+
+HTML, originally being for documents, did not have advanced layout tools. At the time, using tables was standard. Tables gave way to more print-style [float](https://developer.mozilla.org/en-US/docs/Web/CSS/float), but it had too many quirks.  But as screens grew bigger and user demands grew larger, new layout models like [flex](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Flexbox) and [grid](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout) were added.
+
+CSS also handles colors, backgrounds, alignment, and other visual properties too. It's easy to start but hard to master. Take it slow.
+
+Ultimately, CSS is an incredible tool to that lifts a developer from making basics CLIs and let's them create wonderful user interfaces.
+
+Here are some good written resources on CSS Flex:
+* [MDN: Flexbox](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Flexbox)
+* [CSS Tricks: Flexbox](https://css-tricks.com/snippets/css/a-guide-to-flexbox/)
+* [Interactive Flexbox](https://www.joshwcomeau.com/css/interactive-guide-to-flexbox/)
+* [Game: Flexbox Froggy](https://flexboxfroggy.com/)
+
+Here are some good written resources on CSS Grid:
+* [MDN: Grid](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout)
+* [CSS Tricks: Grid](https://css-tricks.com/snippets/css/complete-guide-grid/)
+* [Interactive Grid](https://www.joshwcomeau.com/css/interactive-guide-to-grid/)
+* [Game: Grid Garden](https://cssgridgarden.com/)
+
+---
+
+## TypeScript
+
+How do you know that the number one is `1`? You can just tell. With JavaScript, there are _types_ but the kind that get checked at compile time. JavaScript was designed to be so lenient, letting you access an object property `data.enabled` without actually knowing at compile time if `data` was `null` or `undefined` or even an object with an `enabled` property. TypeScript helps you.
+
+TypeScript was born of a demand to make better and more reliable software, by taking the type checking out of developers brains and get it back to where it belongs: the compiler.
+
+Functionally, TypeScript is still JavaScript, but with just a few more annotations.
+
+Here are some good written resources on TypeScript:
+* [typescriptlang - TypeScript in 5 Minutes](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html)
+* [GeeksForGeeks](https://www.geeksforgeeks.org/typescript/)
+* [FreeCodeCamp - TypeScript Beginners Guide](https://www.freecodecamp.org/news/learn-typescript-beginners-guide/)
+
+---
+
+## React
+
+You've made it all the way to React.
+
+Let's do a quick recap though.
+
+In addition to the general JavaScript knowledge you have explicitly or implicitly, you should have familiarity with these often used methods:
+* [JavaScript map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)
+* [JavaScript filter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter)
+* [JavaScript reduce](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce)
+
+In addition to the general HTML and CSS knowledge you have explicitly or implicitly, you should have familiarity with:
+* [Style attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/style)
+
+Ok, ok, what's the story with React? In the old days, we could use JavaScript to dynamically handle interactions with buttons and form inputs. It was fine. At a certain level of complexity though, you end up repeating these `handleInputOnChange` on `handleOnClick`. And then you start having form fields and buttons depending on remote state, and deriving new local state. And things get messy. Plus, if you need to update a bunch of elements at the same time, old browsers could do that, but it would get slow and could cause the browser to freeze. React simplified the handlers and smoothed over the rough edges that browsers had.
+
+In the end, React is a library, a framework and an ecosystem.
+
+Here are some good written resources on React:
+* [Official react docs - Learn react](https://react.dev/learn) 👈 you want to start here
+* [GeeksForGeeks - React Tutorial](https://www.geeksforgeeks.org/react-tutorial/)
+* [TutorialsPoint - React](https://www.tutorialspoint.com/reactjs/index.htm)
+* [VS Code with React](https://code.visualstudio.com/docs/nodejs/reactjs-tutorial)
+
+How should I get started with React right now, today?
+
+You should try [Vite](https://vitejs.dev/)! [Vite](https://vitejs.dev/guide/why.html) is a _bundler_, which you can think of as a compiler for frontend resources.
+
+```bash
+npm create vite@latest my-react-app -- --template react-ts
+```
+
+That should bootstrap for you a new directory, with a bunch of pre-baked settings and stubs. You should be able to run `npm run dev` and your new React frontend should start running. You can find the `App.tsx` and make a live edit - change some text to your name or something recognizable - and - you should see those results!
+
+There's more to React than making little tweaks to text. You can react to click events, respond to form field change events, handle submit events, you can make reusable components using props, or even use spooky action at a distance with context.
+## React ecosystem
+
+React's ecosystem is what has made it so sticky. Here's a selection of interesting and useful ecosystem components you might like to know about.
+
+[Vite](https://vitejs.dev/), as mentioned earlier, is a great bundler. It's not React specific but it's a great foundational tool for your frontend application.
+
+[Next](https://nextjs.org/) is similar to Vite, but offers deeper integration with React. That deep integration enables advanced capabilities like server side rendering and React Server Components. Typically for internal business applications, we forgo the additional implementation and mindset complexity that Next brings along. But for external, customer facing, perhaps even unauthenticated experiences, Next gives you a lot of value.
+
+[React Query](https://tanstack.com/query/latest/docs/framework/react/overview), or TanStack Query, handles your the states between your async data fetches. Have you ever wanted to show a loading spinner when your data loads? Or gracefully handle errors? Or handle refreshing data on an interval? Or having data automatically refresh when a user focuses back on a window? Or, and probably the best part, handling client side data caching? Yeah. React Query does that for you and it does it so well.
+
+[React Table](https://tanstack.com/table/latest), or TanStack Table, handles your table rendering. Have you ever wondered how table sorting or pagination works? How it works locally vs remotely? Yeah. React Table does that for you. React Table, although related to React Query, departs from a simple and beautiful API and embraces composition. It trades power and capability for that complexity though. It really does take a few hours to get a grip of the API offered, and carefully taking pieces from the docs-tutorials until you've pieced together the goal you were after.
+
+[React Router](https://reactrouter.com/en/main), the industry standard staple for routing. It offers a great balance of out of the box features and an active community. It's a router, so there's just not that much to say. [Upcoming in React Router v7](https://remix.run/blog/merging-remix-and-react-router), there will be new tooling options that integrate with Vite that enable RSC and other advanced capabilities. If you did want to consider an alternative, there's also [TanStack Router](https://tanstack.com/router/latest). (Incidentally, when asking a fellow developer, "Did you like TanStack Router when you used it?" He said _No._ That's no reason not to try it though if you're bored.)
+
+[MUI](https://mui.com/), or Material UI (React), is a powerful and complete design system and collection of ready to use components. [Material](https://m3.material.io/) is made and inspired by Google. Material is nothing special, and even occasionally looks gauche, but that's OK, because it's well know and consistent. Especially for internal apps, being simple and consistent is fine, even if not substantially branded.
+
+[React Hook Form](https://www.react-hook-form.com/) is a lovely library that helps make your client side form validation performant, customizable and pleasant for end users. A highlight of React Hook Form, is that it handles all of this, for the most part, with [_uncontrolled_ components](https://www.scaler.com/topics/react/controlled-and-uncontrolled-components-in-react/), meaning that there's less boilerplate and better performance.
+
+
+## JavaScript ecosystem
+
+[Zod](https://zod.dev/) is a data validation library. It also combines with TypeScript to provide compile and runtime safety of incoming and outgoing data.
+
+[Tailwind](https://tailwindcss.com/) is an alternative to MUI. It's implemented as a massive collection of individual classes that can be composed together to make the desired user interface. The key is that it acts at a different layer of composition than MUI, acting as a lower level atomic.
+
+[Vitest](https://vitest.dev/). Do do you like testing? If you have pure functions or modules that need mocks, Vitest, powered by Vite, is perfect for you. Plus Vitest also works with [ESM](https://nodejs.org/api/esm.html) and that makes modern testing easy.
+
+[React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) is the best way to test React components, when necessary. React _will always work_. So what are you testing? You're testing _your_ code that lives in and among those components, and React Testing Library will help you do that.
+
+[Cypress](https://www.cypress.io/) handles your frontend end-to-end testing, allowing you to test from the end user's perspective.
