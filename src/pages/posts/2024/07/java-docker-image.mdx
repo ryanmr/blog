@@ -1,0 +1,185 @@
+---
+title: "Java Docker Image"
+description: "Is it a container or a jar? Or is it both?"
+# publishDate: "08 Jul 2024"
+updatedDates: []
+layout: ../../../../layouts/BlogPost.astro
+---
+
+This is my reference guide for Java flavored docker images. Typically, I'm using this alongside Spring Boot but you could adapt this to any Java-ecosystem framework or whatever ends up running as a `.jar`.
+
+## References
+
+Here are some reference opinions and positions:
+
+### Gradle
+
+In this, the `.jar` files are produced with Gradle defaults. If you find your Gradle is making _two_ `.jar` files for some reason, try turning that off with this in your `build.gradle`:
+
+```groovy
+tasks.named("jar") {
+	enabled = false
+}
+```
+
+### Layertools
+
+I skip [layertools](https://www.baeldung.com/docker-layers-spring-boot). Since the images are used as carriers for the kubernetes cluster, it's not too important to me that there's layer reuse. In the unlikely event that I am running locally, a few slow rebuilds locally will not materially impact me. But, by all means, use layertools if you think it's worth the extra complexity over including a single simple `.jar` file.
+
+### Alpine
+
+When possible, I prefer [running on alpine](https://alpinelinux.org/). It provides the smallest functional baseline image, which reduces container surface area, reducing potential blocking CVEs.
+
+Sometimes I hear that Alpine, not having [glibc](https://www.gnu.org/software/libc/), and using [musl libc](https://musl.libc.org/), impacts performance. While I've never noticed anything like that, it could be true in very precise benchmarking.
+
+### Amazon Corretto
+
+Typically, I am running these containers and these `.jar`s on Amazon metal. I have no major issues using Corretto then. That said, I think it's great having JDK/JRE diversity, so feel free to use another option.
+
+Speaking of options, [distroless](https://github.com/GoogleContainerTools/distroless?tab=readme-ov-file) _could_ be an option if you do not mind forgoing any additional container tooling (like curl, jq, etc), since distroless has no shell.
+
+### Datadog
+
+Typically, I use Datadog. If you do not use Datadog, that's OK—just remove that stage from the builds if it's present. Also, skip this portion of the entrypoint:
+
+```shell
+"-javaagent:/app/dd-java-agent.jar", "-Dmanagement.statsd.metrics.export.host=${STATSD_HOST}"
+```
+
+## Dockerfiles
+
+Ok, let's build.
+
+### Tiny option
+
+First up, an option with no frills:
+
+```dockerfile
+FROM amazoncorretto:17-alpine
+
+WORKDIR /app
+
+COPY ./build/libs/*.jar /app/app.jar
+
+RUN adduser -D --uid 1001 --no-create-home roxy
+USER 1001
+
+ENTRYPOINT ["java", "-jar", "--add-exports=java.base/sun.net=ALL-UNNAMED", "app.jar"]
+```
+
+### Standard option
+
+Second up, and my recommendation, a very standard option:
+
+```dockerfile
+FROM scratch as datadog
+WORKDIR /download
+ADD https://dtdg.co/latest-java-tracer /download/dd-java-agent.jar
+
+FROM alpine as cert
+RUN apk add --update --no-cache ca-certificates
+
+FROM alpine as user
+RUN adduser -D --uid 1001 --no-create-home roxy
+
+FROM amazoncorretto:17-alpine
+WORKDIR /app
+
+COPY --from=datadog --chown=1001 /download/dd-java-agent.jar /app/dd-java-agent.jar
+COPY --from=cert /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=user /etc/passwd /etc/passwd
+COPY ./build/libs/*.jar /app/app.jar
+
+USER 1001
+
+ENTRYPOINT ["java", "-jar", "-javaagent:/app/dd-java-agent.jar", "-Dmanagement.statsd.metrics.export.host=${STATSD_HOST}", "--add-exports=java.base/sun.net=ALL-UNNAMED", "/app/app.jar"]
+```
+
+1. Download datadog java agent
+2. Download the latest certs {/* (is this necessary? surely, amazoncorretto has certs that are fine) */}
+3. Setup non-root user for execution
+4. Copy files from previous steps
+5. Copy files `.jar` from outside of docker[^1]
+6. Set non-root user (for kubernetes)
+7. Setup entrypoint
+
+With all of that, I get an image that's about 343 MB[^2], using a single endpoint health check Spring Boot app.
+
+### Needlessly advanced option
+
+Apparently along with Java 9 (that was a while ago) the JDK/JRE divide became fuzzy. You rarely find docker images with _only_ the JRE. That's because [jlink](https://docs.oracle.com/en/java/javase/11/tools/jlink.html) provides an alternative to produce a runtime from its parent jdk. There are probably other reasons too. Let me know if have advice regarding JRE docker images.
+
+With the [help of Synk](https://medium.com/@snyksec/using-jlink-to-create-smaller-docker-images-for-your-spring-boot-java-application-5e21a3377965), here's the Dockerfile concoction that trims down the runnable image. Here's the warning: it _might_ technically compile and even _work_. But who knows why, or how, or really if it's a good idea. For what it's worth, with all of that extra configuration, I get an image that's about trimmed down to 117 MB. That's 226 MB or 65% savings.
+
+<details>
+<summary>Dockerfile concoction</summary>
+
+You've been warned.
+
+```dockerfile
+FROM scratch as datadog
+WORKDIR /download
+ADD https://dtdg.co/latest-java-tracer /download/dd-java-agent.jar
+
+FROM alpine as cert
+RUN apk add --update --no-cache ca-certificates
+
+FROM alpine as user
+RUN adduser -D --uid 1001 --no-create-home roxy
+
+FROM scratch as src
+WORKDIR /app
+COPY ./build/libs/*.jar /app/app.jar
+
+FROM amazoncorretto:17-alpine as jre
+
+RUN apk add --update --no-cache binutils
+
+COPY --from=src /app/app.jar /app/app.jar
+
+RUN jar xf /app/app.jar
+
+RUN jdeps --ignore-missing-deps -q  \
+    --recursive  \
+    --multi-release 17  \
+    --print-module-deps  \
+    --class-path 'BOOT-INF/lib/*'  \
+    /app/app.jar > deps.info
+
+RUN jlink \
+    --module-path $JAVA_HOME/jmods \
+    --add-modules $(cat deps.info) \
+    --output /opt/jre \
+    --strip-debug \
+    --no-man-pages \
+    --no-header-files \
+    --compress=2
+
+FROM alpine:latest
+WORKDIR /app
+
+ENV JAVA_HOME=/opt/jre
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+
+COPY --from=jre "${JAVA_HOME}" "${JAVA_HOME}"
+COPY --from=datadog --chown=1001 /download/dd-java-agent.jar /app/dd-java-agent.jar
+COPY --from=cert /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=user /etc/passwd /etc/passwd
+COPY --from=src /app/app.jar /app/app.jar
+
+USER 1001
+
+ENTRYPOINT ["java", "-jar", "-javaagent:/app/dd-java-agent.jar", "-Dmanagement.statsd.metrics.export.host=${STATSD_HOST}", "--add-exports=java.base/sun.net=ALL-UNNAMED", "/app/app.jar"]
+```
+
+The worst part about this is the JRE build explicitly requires knowledge of your application so it can detect whatever intrinsic modules it requires. We can't even abstract that extra complexity into another image. It's a bummer.
+
+Have you considered writing [Go](https://go.dev/) instead?
+
+</details>
+
+---
+
+[^1]: By default, I typically build artifacts outside of docker, because I tend to reuse all of the tooling for tests, build, and other analysis. If you do not need those common integration steps, then feel free to move your build step into a stage and copy the resulting jar from within.
+
+[^2]: Image size is not all that important. It impacts ECR costs primarily, and also impacts load times elsewhere in the cluster secondarily.
