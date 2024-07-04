@@ -10,56 +10,56 @@ layout: ../../../../layouts/BlogPost.astro
 
 1. It uses a proprietary schema file format
 
-  The `prisma/schema.prisma` format on its own is _fine_.
-  
-    ```prisma
-    model User {
-      id    Int     @id @default(autoincrement())
-      email String  @unique
-      name  String?
-      posts Post[]
-    }
-    ```
+    The `prisma/schema.prisma` format on its own is _fine_.
+    
+      ```prisma
+      model User {
+        id    Int     @id @default(autoincrement())
+        email String  @unique
+        name  String?
+        posts Post[]
+      }
+      ```
 
-   However, it is not easily open to extension or analysis by other ecosystem tooling that would be brought by JSON, YAML or TOML. Despite that, this blog knows how syntax highlight these code blocks, so I suppose that's good enough.
+    However, it is not easily open to extension or analysis by other ecosystem tooling that would be brought by JSON, YAML or TOML. Despite that, this blog knows how syntax highlight these code blocks, so I suppose that's good enough.
 
-   Either way, it irks me that it's not in a generic format or in an actual programming language format (JS / TS).
+    Either way, it irks me that it's not in a generic format or in an actual programming language format (JS / TS).
 
 2. Primsa requires a particular environment variable for database connections
 
-  This seems innocent enough:
+    This seems innocent enough:
 
-  ```prisma
-  datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
-  }
-  ```
+    ```prisma
+    datasource db {
+      provider = "postgresql"
+      url      = env("DATABASE_URL")
+    }
+    ```
 
-  However, this configuration isn't in _your app code_. That means you can't compose your credential string using what's available in your app's purview. In our cases, we're using docker deploying to a kubernetes cluster that automatically injects various `DATABASE_` environment variables. Our setup doesn't precompose `DATABASE_URL` with username and password inlined, so instead we need to use a custom `entrypoint.sh` that concatenates all these variables together so its suited for Prisma.
+    However, this configuration isn't in _your app code_. That means you can't compose your credential string using what's available in your app's purview. In our cases, we're using docker deploying to a kubernetes cluster that automatically injects various `DATABASE_` environment variables. Our setup doesn't precompose `DATABASE_URL` with username and password inlined, so instead we need to use a custom `entrypoint.sh` that concatenates all these variables together so its suited for Prisma.
 
 3. Thousands of issues
 
-  Every open source project that's popular has thousands of issues open in their project repositories. [Prisma is no different](https://github.com/prisma/prisma/issues).
+    Every open source project that's popular has thousands of issues open in their project repositories. [Prisma is no different](https://github.com/prisma/prisma/issues).
 
-  Having not kept any records from my previous encounters researching odd bugs and looking for generally useful features, I can't say how many issues are noise or how many are pleas for features stuck in limbo. We all know what you say about open source though, of course, "PRs welcome." Still, it's never a good sign when your database connector, effectively the most foundational component of your application (after all, if you could not fetch or save data, would you even have an application?) is has so many issues tied to it.
+    Having not kept any records from my previous encounters researching odd bugs and looking for generally useful features, I can't say how many issues are noise or how many are pleas for features stuck in limbo. We all know what you say about open source though, of course, "PRs welcome." Still, it's never a good sign when your database connector, effectively the most foundational component of your application (after all, if you could not fetch or save data, would you even have an application?) is has so many issues tied to it.
 
-  <details>
-  <summary>As an amusing example</summary>
+    <details>
+    <summary>As an amusing example</summary>
 
-  [Ever use AsyncLocalStorage](https://github.com/prisma/prisma/issues/23397)? Well, with Prisma that kind of just... breaks? There's an alleged workaround but it could end up causing a memory leak. Surely, all of that is superfluous but it's someone's plan that's just been ruined, superfluous or not.
-  </details>
+    [Ever use AsyncLocalStorage](https://github.com/prisma/prisma/issues/23397)? Well, with Prisma that kind of just... breaks? There's an alleged workaround but it could end up causing a memory leak. Surely, all of that is superfluous but it's someone's plan that's just been ruined, superfluous or not.
+    </details>
 
 4. Bonus! Bundling Prisma with a Next app in [Standalone Mode](https://www.ryanmr.com/posts/next-standalone-mode) ([output settings](https://nextjs.org/docs/pages/api-reference/next-config-js/output)) is tricky
 
-  Standalone Mode is ideal for a docker image target because it removes dev-dependencies and other unused dependencies, leaving you with only compiled source and the necessary dependencies to run on demand. Well, the Prisma cli is necessary for migrations but it's not an actual runtime dependency, so Standalone Mode strips it right out and you have to do some trickery to put the right executable dependency back into the Standalone Mode `node_modules/.bin` folder. 
-  
-  It's all weird. Sure, it might be induced by our ecosystem but it's not quite as easy as I'd have hoped.
+    Standalone Mode is ideal for a docker image target because it removes dev-dependencies and other unused dependencies, leaving you with only compiled source and the necessary dependencies to run on demand. Well, the Prisma cli is necessary for migrations but it's not an actual runtime dependency, so Standalone Mode strips it right out and you have to do some trickery to put the right executable dependency back into the Standalone Mode `node_modules/.bin` folder. 
+    
+    It's all weird. Sure, it might be induced by our ecosystem but it's not quite as easy as I'd have hoped.
 
 5. Bonus! [ZIRP](https://www.investopedia.com/articles/investing/031815/what-zero-interestrate-policy-zirp.asp) is dead, [EE](https://github.com/hoppscotch/hoppscotch/pull/3266#issuecomment-1984106576) [reigns](https://twitter.com/_msw_/status/1766550036328886453), how does Primsa make money and keep this going?
 
-  [Accelerate](https://www.prisma.io/docs/accelerate) is cool, but doesn't everyone have one of those serverless-databases these days? So far it's worked but in this economy it's just way harder.
+      [Accelerate](https://www.prisma.io/docs/accelerate) is cool, but doesn't everyone have one of those serverless-databases these days? So far it's worked but in this economy it's just way harder.
 
-Now, the actual query experience? It's fine. For me the first 80% of an ORM is to handle simple `SELECT` `INSERT` `UPDATE` `DELETE` queries. Then everything else is probably [object relational mapping](https://en.wikipedia.org/wiki/Object%E2%80%93relational_mapping). You can read all about the [Object-relational impedance mismatch](https://en.wikipedia.org/wiki/Object%E2%80%93relational_impedance_mismatch). There's always going to be a weird situation where you need to write your own raw SQL (with a [prepared statement](https://en.wikipedia.org/wiki/Prepared_statement), hopefully). I think it's _good_ to expose the object mapping utilities back to the user so they can rebuild the interface themselves, but most ORMs do not go out of their way for that.
+    Now, the actual query experience? It's fine. For me the first 80% of an ORM is to handle simple `SELECT` `INSERT` `UPDATE` `DELETE` queries. Then everything else is probably [object relational mapping](https://en.wikipedia.org/wiki/Object%E2%80%93relational_mapping). You can read all about the [Object-relational impedance mismatch](https://en.wikipedia.org/wiki/Object%E2%80%93relational_impedance_mismatch). There's always going to be a weird situation where you need to write your own raw SQL (with a [prepared statement](https://en.wikipedia.org/wiki/Prepared_statement), hopefully). I think it's _good_ to expose the object mapping utilities back to the user so they can rebuild the interface themselves, but most ORMs do not go out of their way for that.
 
-Alas, Prisma has been fine. I haven't spent much more than a dozen maintenance hours on our internal projects that used Prisma, so it's not gotten in the way too much either.
+    Alas, Prisma has been fine. I haven't spent much more than a dozen maintenance hours on our internal projects that used Prisma, so it's not gotten in the way too much either.
