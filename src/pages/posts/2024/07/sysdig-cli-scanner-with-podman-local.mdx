@@ -1,0 +1,58 @@
+---
+title: "Scan podman images locally with Sysdig"
+description: "Where's that SOCK again?"
+publishDate: "04 Jul 2024"
+updatedDates: []
+layout: ../../../../layouts/BlogPost.astro
+---
+
+If your megacorp uses Sysdig among other tools for image scanner, that's great. You should know how to run it locally too. The [documentation provides a great and functional guide](https://docs.sysdig.com/en/docs/installation/sysdig-secure/install-vulnerability-cli-scanner/) on how to get started. There's two scan modes. IaC (infrastructure as code) mode scans is useful but it does not scan images, it scans configuration files (e.g. terraform) for ensure best practice is followed. Meanwhile, VM mode actually scans the image.
+
+[VM mode has documentation too](https://docs.sysdig.com/en/docs/installation/sysdig-secure/install-vulnerability-cli-scanner/running-in-vm-mode/), but the examples leave a tiny bit to be desired when coupled with [Podman](https://podman.io) (circa July 2024).
+
+Let's just make up the most basic of images:
+
+```dockerfile
+FROM alpine
+```
+
+This does nothing. That's the point in this exercise, just trying to get the scanner to work locally.
+
+Let's build[^1]:
+
+```bash
+podman build -f ./Dockerfile -t myimage:1 .
+```
+
+[The documentation](https://docs.sysdig.com/en/docs/installation/sysdig-secure/install-vulnerability-cli-scanner/running-in-vm-mode/#image-sources) claims that the cli is as simple as passing along the image name:
+
+> The Sysdig CLI scanner can load images from different sources. By default, it will try to automatically find the provided image name from all supported sources, in the order specified by the following list. However, you can explicitly select the image source by using the corresponding prefix for the image name:
+> 
+> * `file://` - Load the image from a .tar file
+> * `docker://` - Load the image from the Docker daemon (honoring DOCKER_HOST environment variable or other Docker configuration files)
+> * `podman://` - Load the image from the Podman daemon
+> * `pull://` - Force pulling the image from a remote repository (ignoring local images with same name)
+> * `containerd://` - Load the image from Containerd daemon
+> * `crio://` - Load the image from Containers Storage location
+
+The docs lead you to believe that it's as easy[^2] as: 
+
+```bash
+SECURE_API_TOKEN="my-incredible-token" sysdig-cli-scanner --apiurl="https://secure.sysdig.com/" docker://myimage:1
+```
+
+When you run that command, odds are, it nondescriptly fails. If you run it in _podman_ mode instead, using the `podman://` prefix, it nondescriptly fails too.
+
+What I found, is that this sysdig-cli-scanner assumes that the image is found at its perhaps more traditionally docker name. The Docker Desktop provided cli never shows the `docker.io/library/` prefix for local images. Let's try stamping that on the image accordingly:
+
+```bash
+podman tag localhost/myapp:1 docker.io/library/myapp:1
+```
+
+Now try the sysdig-cli-scanner command again. It works now.
+
+---
+
+[^1]: Typically, I use `docker` aliased to `podman` instead. It's just easier.
+
+[^2]: My `sysdig-cli-scanner` is in a ~/.bin folder that's on the path, so I can reference it anywhere.
